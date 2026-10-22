@@ -1,0 +1,5 @@
+# Runtime dependency: Google Cloud BigQuery client for CSV load jobs and table metadata.
+# Source: official Google Cloud Python client distribution; license: Apache-2.0.
+# Owner/approval: TBD. Risk: authenticated cloud API access and transitive dependencies.
+# Update strategy: review and test supported 3.x updates; scan dependencies before release.
+google-cloud-bigquery>=3.35,<4.0
