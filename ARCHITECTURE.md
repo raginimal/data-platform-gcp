@@ -2,6 +2,39 @@
 
 This document defines the core contract. Project-specific decisions belong in `docs/architecture/` and `docs/adr/`.
 
+## GCP Data Platform Demo (Proposal)
+
+**Status:** Demo proposal only; not an approved production design. Unknowns are marked TBD.
+
+### Overview
+
+Land demo data in Cloud Storage, load it into BigQuery, and run simple SQL analytics in BigQuery. The cloud and data platform are specified by the demo request; production suitability, data classification, and operational requirements remain TBD.
+
+### Components and data flow
+
+1. A Cloud Storage landing bucket receives demo files. Bucket name, location, file format, and retention are TBD.
+2. A BigQuery load job loads files into a staging dataset, then into analytics tables as needed. Load trigger, schema validation, dataset names, and transformation approach are TBD.
+3. An analyst queries BigQuery tables with SQL for simple analytics. Any dashboard or other consumer is TBD.
+
+### IAM and secrets
+
+- Use separate human, data-loading, and deployment identities; grant least-privilege access to the bucket and BigQuery datasets. Exact principals and roles are TBD.
+- For local development, use approved user authentication; for CI deployment, prefer short-lived OIDC/workload identity credentials. The identity provider and setup are TBD.
+- Do not store credentials in Git, source files, or logs. No application secret is currently identified; if one is needed, use an approved secret manager (GCP Secret Manager is a demo option, subject to review).
+- Confirm data classification, encryption requirements, audit needs, retention, and deletion before using anything other than synthetic or approved demo data.
+
+### Development environment
+
+Use an isolated GCP development project and separate bucket/dataset for the demo; project ID, region, billing limits, and enabled APIs are TBD. Use synthetic or approved non-production data. Test and production environments are out of scope until their requirements are confirmed.
+
+### Deployment approach
+
+Demo proposal: provision bucket, datasets, IAM, and required APIs through reviewed infrastructure as code; tool and CI workflow are TBD. Deploy to development first, validate a sample load and query, and require human review before any expansion to other environments. Rollback and cleanup procedures are TBD.
+
+### Applicable principles
+
+This proposal follows ARCH-001, ARCH-002, ARCH-006, ARCH-007, SEC-IAM-001, SEC-IAM-003, SEC-SEC-001, and DATA-001 through DATA-005. See [ADR-0001](docs/adr/ADR-0001-gcp-demo-data-platform.md); neither this proposal nor the ADR changes or approves the architecture baseline.
+
 The detailed source of truth is under `policies/architecture/`: `architecture-principles.md` and `dependency-principles.md`. Their stable IDs are intended for future automated enforcement.
 
 | Principle | Requirement | Automated check | Human decision |
