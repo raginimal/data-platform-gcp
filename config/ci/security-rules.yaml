@@ -1,0 +1,8 @@
+high_confidence_secret_scan: true
+external_scanner: optional-overlay
+fail_on_high_confidence_secret: true
+fail_on_missing_configured_scanner: true
+container_scan: conditional
+infrastructure_scan: conditional
+dependency_scan: conditional
+sast_scan: conditional

@@ -1,0 +1,15 @@
+.env
+.env.*
+!.env.example
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!.example.tfvars
+.venv/
+__pycache__/
+node_modules/
+dist/
+coverage/
+.DS_Store
+.vscode/settings.json

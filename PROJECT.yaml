@@ -1,0 +1,18 @@
+# Project configuration. Run scripts/setup.sh to populate this file.
+project_name: "gcp-data-platform"
+team: "data-platform"
+owner: "ragimalhotra"
+language: "python"
+cloud: "gcp"
+project_type: "data"
+environments:
+  - dev
+  - test
+  - prod
+repository_organization: "ragimalhotra@deloitte.com.au"
+ai_capabilities:
+  models: false
+  prompts: false
+  rag: false
+  evaluations: false
+  guardrails: false

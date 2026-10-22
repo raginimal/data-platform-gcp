@@ -1,0 +1,8 @@
+stack_overlay_required_for_application_checks: true
+formatting: conditional
+linting: conditional
+unit_tests: conditional
+integration_tests: conditional
+end_to_end_tests: conditional
+coverage_threshold: project-configured-only
+no_application_stack_behavior: structural-pass-with-not-configured-status

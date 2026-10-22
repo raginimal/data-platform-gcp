@@ -1,0 +1,14 @@
+id: evaluation-id
+version: 1.0.0
+owner: ai-owner
+purpose: Quality and safety objective
+dataset: permissioned-dataset-reference
+metrics:
+  - name: quality
+    threshold: define-threshold
+  - name: safety
+    threshold: define-threshold
+  - name: latency
+    threshold: define-threshold
+failure_policy: Describe release behavior when a threshold fails.
+review_frequency: define-frequency

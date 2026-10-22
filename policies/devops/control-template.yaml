@@ -1,0 +1,9 @@
+id: devops-control-id
+name: concise-delivery-control
+status: proposed
+owner: platform-owner
+requirement: State the delivery or operations requirement.
+automated_check: Describe the CI/CD check.
+evidence: Artifact, log, dashboard, or approval reference.
+rollback: Describe rollback expectations.
+exception_process: Link an ADR with expiry.

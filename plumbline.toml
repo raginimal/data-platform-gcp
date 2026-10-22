@@ -1,0 +1,20 @@
+# Foundation profile for the vendored, stdlib-only Plumbline gate.
+[plumbline]
+min_score = 90
+max_changed_lines = 400
+max_modules_per_change = 3
+require_ai_trailer = false
+require_tests_for = ["src/**"]
+test_globs = ["tests/**", "test/**", "**/*_test.*", "**/*.test.*", "**/*.spec.*"]
+exclude = [
+  ".git/**",
+  ".plumbline/**",
+  ".venv/**",
+  "venv/**",
+  "brag-output/**",
+  "**/__pycache__/**",
+]
+
+# The foundation's YAML baseline and policy validators remain authoritative.
+# These Plumbline rules require its separate TOML module architecture model.
+disabled_rules = ["PL013", "PL014", "PL015", "PL017"]

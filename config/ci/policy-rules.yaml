@@ -1,0 +1,17 @@
+required_policy_documents:
+  - policies/repository/repository-principles.md
+  - policies/architecture/architecture-principles.md
+  - policies/architecture/dependency-principles.md
+  - policies/architecture/architecture-baseline.md
+  - policies/devops/branching.md
+  - policies/devops/pull-request.md
+  - policies/security/security-principles.md
+  - policies/data/data-principles.md
+  - policies/ai/ai-engineering-principles.md
+required_policy_prefixes:
+  - RP
+  - ARCH
+  - DEVOPS
+  - SEC
+  - DATA
+  - AI

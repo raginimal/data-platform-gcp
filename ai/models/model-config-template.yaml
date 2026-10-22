@@ -1,0 +1,13 @@
+model_id: approved-model-identifier
+version: provider-version
+owner: ai-owner
+purpose: Intended use
+provider: selected-provider
+parameters:
+  temperature: 0
+  max_output_tokens: 0
+risk_classification: low
+input_classification: internal
+output_validation: path-to-validator
+evaluation_suite: path-to-evaluation
+cost_limit: define-budget

@@ -1,0 +1,13 @@
+service_name: service-name
+owner: team-or-role
+purpose: Service responsibility
+apis: []
+data_inputs: []
+data_outputs: []
+trust_boundaries: []
+dependencies: []
+health_checks:
+  - /health
+metrics: []
+alerts: []
+runbook: docs/runbooks/service-name.md

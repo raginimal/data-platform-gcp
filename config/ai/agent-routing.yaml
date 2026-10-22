@@ -1,0 +1,51 @@
+version: 1.0.0
+mode: advisory-read-only
+unknown_changes: code-quality
+rules:
+  - match:
+      - src/**
+      - tests/**
+    agents:
+      - code-quality
+      - architecture
+  - match:
+      - infrastructure/**
+      - config/**
+      - .github/workflows/**
+    agents:
+      - security-devops
+  - match:
+      - ai/**
+      - prompts/**
+      - evaluations/**
+      - guardrails/**
+    agents:
+      - ai-engineering
+      - security-devops
+  - match:
+      - policies/data/**
+      - data/**
+    agents:
+      - architecture
+      - security-devops
+      - ai-engineering
+  - match:
+      - policies/**
+      - docs/architecture/**
+      - docs/adr/**
+    agents:
+      - architecture
+  - match:
+      - README.md
+      - AGENTS.md
+      - CONTRIBUTING.md
+    agents:
+      - code-quality
+      - architecture
+# Agents named by a matched baseline boundary are added to the path rules above; the guard only reports, it never approves.
+baseline_guard:
+  source: docs/architecture/baseline.yaml
+  command: bash scripts/validate-baseline.sh
+  always_include_when: ARCHITECTURE_CHANGE
+  always_include_agents:
+    - architecture

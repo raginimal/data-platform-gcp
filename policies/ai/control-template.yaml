@@ -1,0 +1,10 @@
+id: ai-control-id
+name: concise-ai-control-name
+status: proposed
+owner: ai-owner
+risk: medium
+requirement: State the model, prompt, data, evaluation, or guardrail requirement.
+evaluation: Describe the test or metric.
+human_oversight: Describe escalation and approval.
+blocking: false
+exception_process: Link an ADR or risk acceptance with expiry.

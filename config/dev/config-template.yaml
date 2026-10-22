@@ -1,0 +1,9 @@
+environment: dev
+service_name: service-name
+log_level: info
+feature_flags: {}
+secret_references: []
+external_endpoints: []
+observability:
+  metrics_namespace: project-name
+  health_check_path: /health
