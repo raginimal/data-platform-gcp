@@ -15,7 +15,29 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - name: Build artifact
+        id: build
         run: bash scripts/build-artifact.sh
+      - name: Summarize build
+        if: always()
+        env:
+          BUILD_RESULT: ${{ steps.build.outcome }}
+        shell: bash
+        run: |
+          {
+            echo "## Build"
+            echo
+            echo "| Check | Result |"
+            echo "|---|---|"
+            echo "| Artifact build | $BUILD_RESULT |"
+            if [[ -f dist/artifact-manifest.json ]]; then
+              echo
+              echo "### Artifact"
+              echo
+              echo '```json'
+              cat dist/artifact-manifest.json
+              echo '```'
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
 
   core-repository:
     name: Core repository validation
@@ -23,7 +45,20 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - name: Validate baseline repository
+        id: validate
         run: bash scripts/validate.sh
+      - name: Summarize repository validation
+        if: always()
+        env:
+          VALIDATION_RESULT: ${{ steps.validate.outcome }}
+        run: |
+          {
+            echo "## Core repository validation"
+            echo
+            echo "| Check | Result |"
+            echo "|---|---|"
+            echo "| Repository structure and baseline | $VALIDATION_RESULT |"
+          } >> "$GITHUB_STEP_SUMMARY"
 
   advisory-review:
     name: Gate 5 - Advisory AI review

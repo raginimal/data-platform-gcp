@@ -17,8 +17,29 @@ jobs:
         with:
           fetch-depth: 0
       - name: Run repository security checks
+        id: repository-security
         run: bash scripts/security-check.sh
       - name: Dependency and SAST overlay hook
+        id: dependency-sast
         run: bash scripts/validate-optional-assets.sh
       - name: Container and IaC overlay hook
+        id: container-iac
         run: echo "Conditional container and IaC checks are handled by the optional asset validator."
+      - name: Summarize security checks
+        if: always()
+        env:
+          SECURITY_RESULT: ${{ steps.repository-security.outcome }}
+          DEPENDENCY_RESULT: ${{ steps.dependency-sast.outcome }}
+          CONTAINER_RESULT: ${{ steps.container-iac.outcome }}
+        run: |
+          {
+            echo "## Security"
+            echo
+            echo "| Check | Result |"
+            echo "|---|---|"
+            echo "| Repository secret checks | $SECURITY_RESULT |"
+            echo "| Dependency and SAST overlay | $DEPENDENCY_RESULT |"
+            echo "| Container and IaC checks | $CONTAINER_RESULT |"
+            echo
+            echo "See the job logs for findings and overlay configuration details."
+          } >> "$GITHUB_STEP_SUMMARY"

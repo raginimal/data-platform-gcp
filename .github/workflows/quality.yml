@@ -9,6 +9,61 @@ permissions:
   contents: read
 
 jobs:
+  plumbline:
+    name: Gate 2 - Plumbline
+    runs-on: ubuntu-latest
+    outputs:
+      report_generated: ${{ steps.plumbline.outputs.report_generated }}
+      passed: ${{ steps.plumbline.outputs.passed }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Run Plumbline and publish report
+        id: plumbline
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          set +e
+          if [[ "$EVENT_NAME" == "pull_request" ]]; then
+            bash scripts/plumbline-check.sh --diff "$BASE_SHA" --format markdown > plumbline-report.md 2>&1
+          else
+            bash scripts/plumbline-check.sh --all --format markdown > plumbline-report.md 2>&1
+          fi
+          result=$?
+          set -e
+
+          cat plumbline-report.md
+          {
+            echo "### Plumbline"
+            cat plumbline-report.md
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          echo "report_generated=true" >> "$GITHUB_OUTPUT"
+          if [[ "$result" -eq 0 ]]; then
+            echo "passed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "passed=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Upload Plumbline report
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: plumbline-report
+          path: plumbline-report.md
+          if-no-files-found: error
+      - name: Enforce Plumbline gate
+        if: always()
+        env:
+          PASSED: ${{ steps.plumbline.outputs.passed }}
+        run: |
+          if [[ "$PASSED" != "true" ]]; then
+            echo "Plumbline gate failed. See the report above."
+            exit 1
+          fi
+
   quality:
     name: Gate 2 - Quality
     runs-on: ubuntu-latest
@@ -16,15 +71,60 @@ jobs:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
-      - name: Run Plumbline gate
-        shell: bash
-        run: |
-          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            bash scripts/plumbline-check.sh --diff "${{ github.event.pull_request.base.sha }}" --format markdown
-          else
-            bash scripts/plumbline-check.sh --all --format markdown
-          fi
       - name: Run lint hooks
+        id: lint
         run: bash scripts/lint.sh
       - name: Run tests
+        id: tests
         run: bash scripts/test.sh
+      - name: Summarize lint and tests
+        if: always()
+        env:
+          LINT_RESULT: ${{ steps.lint.outcome }}
+          TEST_RESULT: ${{ steps.tests.outcome }}
+        run: |
+          {
+            echo "## Quality checks"
+            echo
+            echo "| Check | Result |"
+            echo "|---|---|"
+            echo "| Lint | $LINT_RESULT |"
+            echo "| Tests | $TEST_RESULT |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  plumbline-pr-comment:
+    name: Publish Plumbline PR report
+    needs: plumbline
+    if: >-
+      always() &&
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      needs.plumbline.outputs.report_generated == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Download Plumbline report
+        uses: actions/download-artifact@v7
+        with:
+          name: plumbline-report
+      - name: Create or update PR comment
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        shell: bash
+        run: |
+          jq -n --rawfile report plumbline-report.md \
+            '{body: "<!-- plumbline-score -->\n" + $report}' > plumbline-comment.json
+
+          comments_endpoint="repos/$GITHUB_REPOSITORY/issues/$PR_NUMBER/comments"
+          comment_id="$(gh api "$comments_endpoint" --paginate \
+            --jq '.[] | select((.body // "") | startswith("<!-- plumbline-score -->")) | .id' \
+            | tail -n 1)"
+
+          if [[ -n "$comment_id" ]]; then
+            gh api --method PATCH "repos/$GITHUB_REPOSITORY/issues/comments/$comment_id" \
+              --input plumbline-comment.json
+          else
+            gh api --method POST "$comments_endpoint" --input plumbline-comment.json
+          fi

@@ -35,8 +35,9 @@ python skills/foundation/foundation.py scaffold "C:/path/to/existing project" --
 python skills/foundation/foundation.py scaffold "C:/path/to/existing project" --mode minimal --apply
 ```
 
-`minimal` adds the governance and enforcement core. Use `--mode full` to add the policies, docs, agents, skills,
-scripts, and workflows as well. Scaffolding never overwrites an existing file; review the dry run first.
+`minimal` adds the governance and enforcement core, including `src/` and `tests/` placeholders required by
+repository validation. Use `--mode full` to add the policies, docs, agents, skills, scripts, and workflows as
+well. Scaffolding never overwrites an existing file; review the dry run first.
 
 ## New repository: init
 

@@ -49,7 +49,9 @@ Use the full set only after reviewing the project's existing conventions:
 python "C:\Users\<user>\workspace\ai-delivery-foundation\skills\foundation\foundation.py" scaffold "C:\path\to\existing project" --mode full
 ```
 
-The command is a dry run by default:
+The command is a dry run by default. The minimal set includes `src/README.md` and `tests/README.md` to create the
+source and test directories required by repository validation, without adding application code or choosing a test
+framework:
 
 - `PLAN` means the file is missing and can be added.
 - `SKIP` means the target already has that path.

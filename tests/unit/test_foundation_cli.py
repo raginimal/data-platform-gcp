@@ -36,6 +36,8 @@ class FoundationCliTests(unittest.TestCase):
         self.assertIn("PROJECT.yaml", files)
         self.assertIn(".plumbline/plumbline.py", files)
         self.assertIn("scripts/plumbline-check.sh", files)
+        self.assertIn("src/README.md", files)
+        self.assertIn("tests/README.md", files)
 
     def test_run_process_forces_utf8_output(self):
         with patch("skills.foundation.foundation.subprocess.run") as run:

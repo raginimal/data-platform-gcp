@@ -19,13 +19,35 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - name: Build
+        id: build
         run: bash scripts/build-artifact.sh
       - name: Upload artifact
+        id: upload
         uses: actions/upload-artifact@v6
         with:
           name: release-${{ github.sha }}
           path: dist/*
           if-no-files-found: error
+      - name: Summarize release artifact
+        if: always()
+        env:
+          BUILD_RESULT: ${{ steps.build.outcome }}
+          UPLOAD_RESULT: ${{ steps.upload.outcome }}
+        run: |
+          {
+            echo "## Release artifact"
+            echo
+            echo "| Check | Result |"
+            echo "|---|---|"
+            echo "| Build | $BUILD_RESULT |"
+            echo "| Upload | $UPLOAD_RESULT |"
+            if [[ -f dist/artifact-manifest.json ]]; then
+              echo
+              echo '```json'
+              cat dist/artifact-manifest.json
+              echo '```'
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
 
   dev:
     name: Promote to DEV
@@ -41,9 +63,25 @@ jobs:
           name: release-${{ github.sha }}
           path: dist
       - name: Verify promoted artifact
+        id: verify
         run: bash scripts/verify-artifact.sh
       - name: Deploy to DEV overlay
+        id: deploy
         run: bash scripts/deployment-hook.sh
+      - name: Summarize DEV promotion
+        if: always()
+        env:
+          VERIFY_RESULT: ${{ steps.verify.outcome }}
+          DEPLOY_RESULT: ${{ steps.deploy.outcome }}
+        run: |
+          {
+            echo "## DEV promotion"
+            echo
+            echo "| Check | Result |"
+            echo "|---|---|"
+            echo "| Artifact verification | $VERIFY_RESULT |"
+            echo "| Deployment hook | $DEPLOY_RESULT |"
+          } >> "$GITHUB_STEP_SUMMARY"
 
   test:
     name: Promote to TEST/UAT
@@ -59,11 +97,30 @@ jobs:
           name: release-${{ github.sha }}
           path: dist
       - name: Verify promoted artifact
+        id: verify
         run: bash scripts/verify-artifact.sh
       - name: Deploy to TEST/UAT overlay
+        id: deploy
         run: bash scripts/deployment-hook.sh
       - name: Validate TEST/UAT deployment
+        id: validate
         run: echo "Run stack-overlay health and release validation here."
+      - name: Summarize TEST/UAT promotion
+        if: always()
+        env:
+          VERIFY_RESULT: ${{ steps.verify.outcome }}
+          DEPLOY_RESULT: ${{ steps.deploy.outcome }}
+          VALIDATE_RESULT: ${{ steps.validate.outcome }}
+        run: |
+          {
+            echo "## TEST/UAT promotion"
+            echo
+            echo "| Check | Result |"
+            echo "|---|---|"
+            echo "| Artifact verification | $VERIFY_RESULT |"
+            echo "| Deployment hook | $DEPLOY_RESULT |"
+            echo "| Deployment validation | $VALIDATE_RESULT |"
+          } >> "$GITHUB_STEP_SUMMARY"
 
   production:
     name: Promote to PROD with approval
@@ -79,8 +136,29 @@ jobs:
           name: release-${{ github.sha }}
           path: dist
       - name: Verify promoted artifact
+        id: verify
         run: bash scripts/verify-artifact.sh
       - name: Deploy to PROD overlay
+        id: deploy
         run: bash scripts/deployment-hook.sh
       - name: Record deployment traceability
+        id: traceability
         run: echo "Record repository, commit, artifact digest, environment, workflow, and approver evidence."
+      - name: Summarize production promotion
+        if: always()
+        env:
+          VERIFY_RESULT: ${{ steps.verify.outcome }}
+          DEPLOY_RESULT: ${{ steps.deploy.outcome }}
+          TRACEABILITY_RESULT: ${{ steps.traceability.outcome }}
+        run: |
+          {
+            echo "## PROD promotion"
+            echo
+            echo "| Check | Result |"
+            echo "|---|---|"
+            echo "| Artifact verification | $VERIFY_RESULT |"
+            echo "| Deployment hook | $DEPLOY_RESULT |"
+            echo "| Traceability record | $TRACEABILITY_RESULT |"
+            echo
+            echo "Production deployment is subject to the configured environment approval."
+          } >> "$GITHUB_STEP_SUMMARY"

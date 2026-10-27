@@ -18,26 +18,54 @@ jobs:
         with:
           fetch-depth: 0
       - name: Validate repository structure and ownership
+        id: repository
         run: bash scripts/validate-repository.sh
       - name: Validate policy IDs and references
+        id: policies
         run: bash scripts/validate-policies.sh
       - name: Validate exceptions
+        id: exceptions
         run: bash scripts/validate-exceptions.sh
       - name: Validate PR governance
+        id: pr-governance
         if: github.event_name == 'pull_request'
         shell: bash
         run: |
           git diff --name-only "${{ github.event.pull_request.base.sha }}" "${{ github.sha }}" > changed-files.txt
           CHANGED_FILES_FILE=changed-files.txt bash scripts/validate-pr.sh
       - name: Detect risk paths
+        id: risk
         if: github.event_name == 'pull_request'
         shell: bash
         run: |
           git diff --name-only "${{ github.event.pull_request.base.sha }}" "${{ github.sha }}" > changed-files.txt
           CHANGED_FILES_FILE=changed-files.txt bash scripts/validate-risk.sh
       - name: Detect architecture baseline impact
+        id: baseline
         if: github.event_name == 'pull_request'
         shell: bash
         run: |
           git diff --name-only "${{ github.event.pull_request.base.sha }}" "${{ github.sha }}" > changed-files.txt
           CHANGED_FILES_FILE=changed-files.txt bash scripts/validate-baseline.sh
+      - name: Summarize policy checks
+        if: always()
+        env:
+          REPOSITORY_RESULT: ${{ steps.repository.outcome }}
+          POLICIES_RESULT: ${{ steps.policies.outcome }}
+          EXCEPTIONS_RESULT: ${{ steps.exceptions.outcome }}
+          PR_RESULT: ${{ steps.pr-governance.outcome }}
+          RISK_RESULT: ${{ steps.risk.outcome }}
+          BASELINE_RESULT: ${{ steps.baseline.outcome }}
+        run: |
+          {
+            echo "## Policy and governance"
+            echo
+            echo "| Check | Result |"
+            echo "|---|---|"
+            echo "| Repository structure and ownership | $REPOSITORY_RESULT |"
+            echo "| Policy IDs and references | $POLICIES_RESULT |"
+            echo "| Exceptions | $EXCEPTIONS_RESULT |"
+            echo "| Pull request governance | $PR_RESULT |"
+            echo "| Risk paths | $RISK_RESULT |"
+            echo "| Architecture baseline impact | $BASELINE_RESULT |"
+          } >> "$GITHUB_STEP_SUMMARY"

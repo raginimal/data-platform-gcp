@@ -28,6 +28,7 @@ POLICY_PATHS = {
 MINIMAL_FILES = (
     "AGENTS.md", "CONTRIBUTING.md", "SECURITY.md", "AI_POLICY.md", "DATA_POLICY.md", "PROJECT.yaml",
     "ARCHITECTURE.md", "plumbline.toml", ".plumbline/plumbline.py", ".plumbline/guard.py",
+    "src/README.md", "tests/README.md",
     "scripts/plumbline-check.sh", "scripts/plumbline-guard.sh", "scripts/validate.ps1",
     ".github/CODEOWNERS", ".github/pull_request_template.md",
 )

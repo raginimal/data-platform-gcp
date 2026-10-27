@@ -24,14 +24,39 @@ jobs:
         if: steps.detect.outputs.present == 'true'
         uses: hashicorp/setup-terraform@v4
       - name: Format
+        id: format
         if: steps.detect.outputs.present == 'true'
         run: terraform -chdir=infrastructure/terraform fmt -check -recursive
       - name: Validate
+        id: validate
         if: steps.detect.outputs.present == 'true'
         run: terraform -chdir=infrastructure/terraform init -backend=false && terraform -chdir=infrastructure/terraform validate
       - name: Plan contract
+        id: plan-contract
         if: steps.detect.outputs.present == 'true'
         run: echo "Run environment-specific plan with approved credentials and remote state in the stack overlay."
       - name: No Terraform configured
         if: steps.detect.outputs.present == 'false'
         run: echo "No Terraform files in the technology-neutral core."
+      - name: Summarize infrastructure validation
+        if: always()
+        env:
+          TERRAFORM_PRESENT: ${{ steps.detect.outputs.present }}
+          FORMAT_RESULT: ${{ steps.format.outcome }}
+          VALIDATE_RESULT: ${{ steps.validate.outcome }}
+          PLAN_RESULT: ${{ steps.plan-contract.outcome }}
+        run: |
+          {
+            echo "## Infrastructure validation"
+            echo
+            if [[ "$TERRAFORM_PRESENT" == "true" ]]; then
+              echo "| Check | Result |"
+              echo "|---|---|"
+              echo "| Terraform detected | yes |"
+              echo "| Formatting | $FORMAT_RESULT |"
+              echo "| Terraform validation | $VALIDATE_RESULT |"
+              echo "| Environment-specific plan | $PLAN_RESULT |"
+            else
+              echo "Terraform is not configured in this repository; infrastructure validation was not applicable."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
