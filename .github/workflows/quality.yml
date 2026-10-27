@@ -115,7 +115,7 @@ jobs:
         shell: bash
         run: |
           jq -n --rawfile report plumbline-report.md \
-            '{body: "<!-- plumbline-score -->\n" + $report}' > plumbline-comment.json
+            '{body: ("<!-- plumbline-score -->\n" + $report)}' > plumbline-comment.json
 
           comments_endpoint="repos/$GITHUB_REPOSITORY/issues/$PR_NUMBER/comments"
           comment_id="$(gh api "$comments_endpoint" --paginate \
