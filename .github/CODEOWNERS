@@ -1,0 +1,8 @@
+# Replace placeholders during bootstrap. This file is authoritative for GitHub.
+* @CHANGE_ME_OWNER
+/.github/ @CHANGE_ME_OWNER
+/infrastructure/ @CHANGE_ME_PLATFORM_OWNER
+/ai/ @CHANGE_ME_AI_OWNER
+/policies/ @CHANGE_ME_SECURITY_OWNER
+/docs/architecture/baseline.yaml @CHANGE_ME_ARCHITECTURE_OWNER
+/docs/adr/ @CHANGE_ME_ARCHITECTURE_OWNER

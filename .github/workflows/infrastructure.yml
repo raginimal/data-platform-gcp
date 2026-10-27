@@ -1,0 +1,37 @@
+name: Infrastructure
+
+on:
+  pull_request:
+    paths:
+      - infrastructure/**
+      - .github/workflows/infrastructure.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  terraform:
+    name: Infrastructure validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Detect Terraform
+        id: detect
+        shell: bash
+        run: test -n "$(find infrastructure -name '*.tf' -print -quit)" && echo present=true >> "$GITHUB_OUTPUT" || echo present=false >> "$GITHUB_OUTPUT"
+      - name: Setup Terraform
+        if: steps.detect.outputs.present == 'true'
+        uses: hashicorp/setup-terraform@v4
+      - name: Format
+        if: steps.detect.outputs.present == 'true'
+        run: terraform -chdir=infrastructure/terraform fmt -check -recursive
+      - name: Validate
+        if: steps.detect.outputs.present == 'true'
+        run: terraform -chdir=infrastructure/terraform init -backend=false && terraform -chdir=infrastructure/terraform validate
+      - name: Plan contract
+        if: steps.detect.outputs.present == 'true'
+        run: echo "Run environment-specific plan with approved credentials and remote state in the stack overlay."
+      - name: No Terraform configured
+        if: steps.detect.outputs.present == 'false'
+        run: echo "No Terraform files in the technology-neutral core."

@@ -1,0 +1,119 @@
+# Architecture Baseline (ARCH-BL-001)
+#
+# Records the architectural boundaries approved at project inception. It locks boundaries,
+# not developer decisions: anything listed under "flexible" can change through a normal PR.
+# Read by scripts/validate-baseline.sh. Format rules: one value per line, double quotes only,
+# lists on one line, globs use "*" (which also matches "/"). Change control: ARCH-BL-002.
+#
+# status: draft    guard reports impact only; use while the project defines its baseline.
+# status: approved guard fails an ARCHITECTURE_CHANGE that has no ADR (ARCH-BL-002).
+# Only a human architecture owner may set status to approved or edit this file.
+
+version: 1
+status: draft
+approved_by: "pending"
+approved_date: "pending"
+approving_adr: "pending"
+
+# Files that never count as baseline impact (templates and folder documentation).
+exempt_paths: ["*/README.md", "README.md", "*-template.yaml", "*-template.md"]
+
+boundaries:
+  - id: BL-APP
+    area: "Application Architecture"
+    baseline: "Approved application pattern (for example modular monolith or services) and layering"
+    flexible: "Module internals, naming, algorithms, and feature code within the approved pattern"
+    change_summary: "Application pattern or layering changed"
+    impact_paths: ["ARCHITECTURE.md", "docs/architecture/*"]
+    change_paths: []
+    agents: ["architecture"]
+
+  - id: BL-COMP
+    area: "Major Components and Service Boundaries"
+    baseline: "Approved services/components, their ownership, and their service contracts"
+    flexible: "Private implementation of a component behind its contract"
+    change_summary: "Service or component boundary changed"
+    impact_paths: ["src/service-contract*", "src/*/service-contract*"]
+    change_paths: []
+    agents: ["architecture"]
+
+  - id: BL-TECH
+    area: "Technology and Platform"
+    baseline: "Approved language, runtime, cloud/platform, and infrastructure provider"
+    flexible: "Libraries and tools that stay inside the approved platform (see ARCH-DEP-*)"
+    change_summary: "Platform, provider, or state backend changed"
+    impact_paths: ["Dockerfile", "*/Dockerfile"]
+    change_paths: ["infrastructure/terraform/providers*", "infrastructure/terraform/backend*"]
+    agents: ["architecture", "security-devops"]
+
+  - id: BL-DATA
+    area: "Data Architecture"
+    baseline: "Approved data platform, data stores, and data contracts"
+    flexible: "Schemas and queries within an approved store, following DATA-CON-*"
+    change_summary: "New or replaced data store introduced"
+    impact_paths: ["data/*", "*data-contract*"]
+    change_paths: ["infrastructure/database/*", "infrastructure/*/datastore*", "infrastructure/*/data-store*"]
+    agents: ["architecture", "security-devops"]
+
+  - id: BL-AI
+    area: "AI Integration Pattern"
+    baseline: "Approved AI integration pattern (for example direct model call, RAG, agent) and guardrail approach"
+    flexible: "Prompt wording, evaluation datasets, and retrieval tuning within the pattern"
+    change_summary: "AI integration pattern changed"
+    impact_paths: ["ai/guardrails/*", "ai/prompts/*contract*"]
+    change_paths: []
+    agents: ["ai-engineering", "architecture"]
+
+  - id: BL-MODEL
+    area: "AI Model Boundary"
+    baseline: "Approved model provider and model family, with data boundary"
+    flexible: "Version bumps and parameter tuning inside the approved family, after AI-MOD-* review"
+    change_summary: "Model provider or family changed"
+    impact_paths: ["ai/models/*"]
+    change_paths: []
+    agents: ["ai-engineering", "architecture"]
+
+  - id: BL-SEC
+    area: "Security and IAM"
+    baseline: "Approved identity model, trust boundaries, and secret management approach"
+    flexible: "Individual least-privilege grants that follow the approved model"
+    change_summary: "Identity or trust model changed"
+    impact_paths: ["infrastructure/iam/*", "infrastructure/*/iam*", "*trust-boundary*"]
+    change_paths: []
+    agents: ["security-devops", "architecture"]
+
+  - id: BL-DEPLOY
+    area: "Deployment Architecture"
+    baseline: "Approved deployment topology, runtime hosting model, and promotion path"
+    flexible: "Resource sizing and module internals within the approved topology"
+    change_summary: "Deployment topology or hosting model changed"
+    impact_paths: ["infrastructure/modules/*", "scripts/deployment-hook.sh", "scripts/rollback-hook.sh"]
+    change_paths: ["infrastructure/", "infrastructure/terraform/*", ".github/workflows/cd.yml"]
+    agents: ["security-devops", "architecture"]
+
+  - id: BL-ENV
+    area: "Environment Structure"
+    baseline: "Approved environment set (dev, test, prod) and how they are separated"
+    flexible: "Environment-specific values inside the approved structure"
+    change_summary: "Environment set or separation changed"
+    impact_paths: ["PROJECT.yaml", "config/dev/*", "config/test/*", "config/prod/*"]
+    change_paths: ["infrastructure/environments/*"]
+    agents: ["security-devops", "architecture"]
+
+  - id: BL-CICD
+    area: "CI/CD Architecture"
+    baseline: "Approved gates, build-once promotion model, and approval points"
+    flexible: "Step implementation and tool choice that keep the gates intact"
+    change_summary: "Pipeline gates or promotion model changed"
+    impact_paths: [".github/workflows/*", "config/ci/*", "Makefile"]
+    change_paths: []
+    agents: ["security-devops", "architecture"]
+
+  - id: BL-REPO
+    area: "Repository Boundaries"
+    baseline: "Approved top-level repository layout and code ownership"
+    flexible: "Folder structure inside an owned area"
+    change_summary: "Repository boundary or ownership changed"
+    impact_paths: [".github/CODEOWNERS"]
+    change_paths: []
+    agents: ["architecture", "code-quality"]

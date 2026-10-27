@@ -1,0 +1,86 @@
+name: CD
+
+on:
+  push:
+    tags: ['v*.*.*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deployment-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build-once:
+    name: Build immutable artifact
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Build
+        run: bash scripts/build-artifact.sh
+      - name: Upload artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: release-${{ github.sha }}
+          path: dist/*
+          if-no-files-found: error
+
+  dev:
+    name: Promote to DEV
+    needs: build-once
+    runs-on: ubuntu-latest
+    environment: dev
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v7
+        with:
+          name: release-${{ github.sha }}
+          path: dist
+      - name: Verify promoted artifact
+        run: bash scripts/verify-artifact.sh
+      - name: Deploy to DEV overlay
+        run: bash scripts/deployment-hook.sh
+
+  test:
+    name: Promote to TEST/UAT
+    needs: dev
+    runs-on: ubuntu-latest
+    environment: test
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v7
+        with:
+          name: release-${{ github.sha }}
+          path: dist
+      - name: Verify promoted artifact
+        run: bash scripts/verify-artifact.sh
+      - name: Deploy to TEST/UAT overlay
+        run: bash scripts/deployment-hook.sh
+      - name: Validate TEST/UAT deployment
+        run: echo "Run stack-overlay health and release validation here."
+
+  production:
+    name: Promote to PROD with approval
+    needs: test
+    runs-on: ubuntu-latest
+    environment: prod
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v7
+        with:
+          name: release-${{ github.sha }}
+          path: dist
+      - name: Verify promoted artifact
+        run: bash scripts/verify-artifact.sh
+      - name: Deploy to PROD overlay
+        run: bash scripts/deployment-hook.sh
+      - name: Record deployment traceability
+        run: echo "Record repository, commit, artifact digest, environment, workflow, and approver evidence."

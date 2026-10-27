@@ -1,0 +1,13 @@
+name: dataset-or-event-name
+version: 1.0.0
+owner: data-owner
+classification: internal
+purpose: Describe the permitted purpose.
+retention: Define the retention period and deletion behavior.
+producer: producer-system
+consumers:
+  - consumer-system
+schema_location: path-or-registry-reference
+compatibility: backward-compatible
+pii: false
+access_approval: role-or-process

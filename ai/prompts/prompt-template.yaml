@@ -1,0 +1,13 @@
+id: prompt-id
+version: 1.0.0
+owner: ai-owner
+purpose: Intended task
+system_prompt: path-to-versioned-prompt-text
+input_contract: path-to-input-contract
+output_contract: path-to-output-contract
+grounding_sources:
+  - source-id
+guardrails:
+  - guardrail-id
+evaluation_suite: path-to-evaluation
+change_reason: Initial version

@@ -1,0 +1,11 @@
+id: guardrail-id
+version: 1.0.0
+owner: ai-owner
+scope: input-output-or-retrieval
+threats:
+  - threat-id
+rules:
+  - rule-id
+action_on_violation: block-review-or-escalate
+logging: Define safe audit evidence without sensitive payloads.
+test_suite: path-to-guardrail-tests

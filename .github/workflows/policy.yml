@@ -1,0 +1,43 @@
+name: Policy
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  policy:
+    name: Repository and policy enforcement
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Validate repository structure and ownership
+        run: bash scripts/validate-repository.sh
+      - name: Validate policy IDs and references
+        run: bash scripts/validate-policies.sh
+      - name: Validate exceptions
+        run: bash scripts/validate-exceptions.sh
+      - name: Validate PR governance
+        if: github.event_name == 'pull_request'
+        shell: bash
+        run: |
+          git diff --name-only "${{ github.event.pull_request.base.sha }}" "${{ github.sha }}" > changed-files.txt
+          CHANGED_FILES_FILE=changed-files.txt bash scripts/validate-pr.sh
+      - name: Detect risk paths
+        if: github.event_name == 'pull_request'
+        shell: bash
+        run: |
+          git diff --name-only "${{ github.event.pull_request.base.sha }}" "${{ github.sha }}" > changed-files.txt
+          CHANGED_FILES_FILE=changed-files.txt bash scripts/validate-risk.sh
+      - name: Detect architecture baseline impact
+        if: github.event_name == 'pull_request'
+        shell: bash
+        run: |
+          git diff --name-only "${{ github.event.pull_request.base.sha }}" "${{ github.sha }}" > changed-files.txt
+          CHANGED_FILES_FILE=changed-files.txt bash scripts/validate-baseline.sh

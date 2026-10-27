@@ -1,0 +1,18 @@
+# Project configuration. Run scripts/setup.sh to populate this file.
+project_name: "CHANGE_ME"
+team: "CHANGE_ME"
+owner: "CHANGE_ME"
+language: "CHANGE_ME"
+cloud: "vendor-neutral"
+project_type: "ai-or-data-project"
+environments:
+  - dev
+  - test
+  - prod
+repository_organization: "CHANGE_ME"
+ai_capabilities:
+  models: false
+  prompts: false
+  rag: false
+  evaluations: false
+  guardrails: false

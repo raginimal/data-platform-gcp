@@ -1,0 +1,784 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Developer DevOps Golden Path</title>
+<style>
+:root{--bg:#ffffff;--panel:#ffffff;--panel2:#f4f4f2;--line:#d0d0ce;--text:#000000;--muted:#53565a;--cyan:#26890d;--dgreen:#86bc25;--blue:#0076a8;--green:#43b02a;--amber:#ed8b00;--red:#da291c;--shadow:0 6px 18px #0000001a;--side:272px;font-family:"Segoe UI",Arial,sans-serif;color:var(--text);background:var(--bg)}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;line-height:1.55;background:var(--bg)}
+a{color:var(--cyan);text-decoration:none}
+a:hover{text-decoration:underline}
+code{color:var(--cyan);background:#eef3e6;padding:2px 6px;border-radius:4px;font-family:Consolas,"Courier New",monospace;font-size:.88em}
+pre{margin:0;padding:14px 16px;background:#f2f2f2;border:1px solid var(--line);border-radius:9px;overflow:auto;font-family:Consolas,"Courier New",monospace;font-size:.84rem;color:var(--text)}
+h1,h2,h3{line-height:1.15}
+h3{margin:0 0 8px}
+ul{padding-left:20px;margin:8px 0}
+li{margin:5px 0}
+.side{position:fixed;inset:0 auto 0 0;width:var(--side);padding:20px 14px;overflow:auto;background:#000;border-right:0;z-index:20}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;margin:0 6px 18px;color:#fff}
+.brand b{display:grid;place-items:center;width:32px;height:32px;background:var(--dgreen);color:#000;border-radius:8px;font-size:.72rem}
+.side h4{margin:16px 8px 6px;color:var(--dgreen);font-size:.68rem;letter-spacing:.16em;text-transform:uppercase}
+.side a.nav{display:block;padding:6px 10px;border-radius:6px;color:#c7c9c7;font-size:.84rem}
+.side a.nav:hover,.side a.nav.active{background:#1c1c1c;color:#fff;box-shadow:inset 3px 0 0 var(--dgreen);text-decoration:none}
+.menu{display:none;position:fixed;top:10px;left:10px;z-index:30;padding:8px 13px;border:1px solid #000;border-radius:8px;background:#000;color:#fff;cursor:pointer}
+main{margin-left:var(--side)}
+section{width:min(1040px,calc(100% - 48px));margin:auto;padding:64px 0 10px;scroll-margin-top:10px}
+.hero{padding-top:70px}
+.kicker{color:var(--cyan);font-size:.74rem;letter-spacing:.16em;text-transform:uppercase;font-weight:800}
+.hero h1{font-size:clamp(2.3rem,5.5vw,4.2rem);letter-spacing:-.04em;margin:14px 0}
+.hero h1:after{content:".";color:var(--dgreen)}
+.hero p.lead{color:var(--muted);font-size:1.12rem;max-width:760px}
+section h2{font-size:clamp(1.6rem,3vw,2.3rem);letter-spacing:-.03em;margin:6px 0 8px}
+section>p.sub{color:var(--muted);max-width:780px;margin:0 0 20px}
+.badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+.badge{border:1px solid var(--line);background:#f4f4f2;padding:6px 10px;border-radius:999px;font-size:.75rem}
+.badge:before{content:"";display:inline-block;width:7px;height:7px;margin-right:6px;border-radius:50%;background:var(--dgreen)}
+.panel{border:1px solid var(--line);border-radius:13px;background:var(--panel2);box-shadow:var(--shadow);padding:20px}
+.grid{display:grid;gap:13px}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+.card{padding:18px;border:1px solid var(--line);border-top:3px solid var(--dgreen);border-radius:10px;background:var(--panel)}
+.card.red{border-top-color:var(--red)}
+.card.amber{border-top-color:var(--amber)}
+.card.green{border-top-color:var(--green)}
+.card.blue{border-top-color:var(--blue)}
+.card p,.card li{color:var(--muted);font-size:.9rem}
+.card .tag{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--cyan);font-weight:800}
+.callout{margin:16px 0;padding:14px 17px;border-left:3px solid var(--amber);background:#fff4e0;color:var(--text);border-radius:0 8px 8px 0}
+.callout.info{border-left-color:var(--dgreen);background:#eef6e3}
+.callout.warn{border-left-color:var(--red);background:#fdeceb}
+.toggle{display:inline-flex;gap:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:6px 0 18px}
+.toggle button{padding:11px 20px;border:0;background:var(--panel);color:var(--muted);cursor:pointer;font-weight:700}
+.toggle button.on{background:var(--dgreen);color:#000}
+.paths{display:grid;gap:13px;grid-template-columns:1fr 1fr}
+.pathcard{padding:20px;border:1px solid var(--line);border-radius:12px;background:var(--panel);cursor:pointer}
+.pathcard.on{border-color:var(--dgreen);background:#f1f8e6}
+.pathcard h3{color:var(--cyan)}
+.pathcard p{color:var(--muted);margin:0}
+body[data-path="greenfield"] .only-b,body[data-path="brownfield"] .only-g{display:none}
+.chain{display:flex;flex-wrap:wrap;gap:8px 0;align-items:center}
+.chain span{padding:7px 11px;border:1px solid var(--line);border-radius:7px;background:var(--panel);font-size:.8rem}
+.chain span.ci{border-color:var(--green)}
+.chain span.ag{border-color:var(--red)}
+.chain span.hu{border-color:var(--amber)}
+.chain i{font-style:normal;color:var(--cyan);padding:0 7px}
+.timeline{list-style:none;margin:0;padding:0;border-left:2px solid var(--line);margin-left:14px}
+.timeline li{position:relative;margin:0;padding:0 0 18px 28px}
+.timeline li:before{content:attr(data-n);position:absolute;left:-15px;top:0;width:28px;height:28px;display:grid;place-items:center;border-radius:50%;background:var(--blue);color:#fff;font-size:.72rem;font-weight:800}
+.timeline li.ci:before{background:var(--green);color:#000}
+.timeline li.ag:before{background:var(--red);color:#fff}
+.timeline li.hu:before{background:var(--amber);color:#000}
+.timeline b{display:block}
+.timeline span{color:var(--muted);font-size:.9rem}
+.legend{display:flex;flex-wrap:wrap;gap:14px;margin:0 0 14px;font-size:.8rem;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
+table{width:100%;border-collapse:collapse;font-size:.88rem;background:var(--panel)}
+th,td{padding:10px 13px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:#000;color:#fff;font-size:.74rem;letter-spacing:.1em;text-transform:uppercase;white-space:nowrap}
+td{color:var(--muted)}
+td:first-child{color:var(--text)}
+tr:last-child td{border-bottom:0}
+.lvl{display:inline-block;padding:2px 8px;border-radius:999px;font-size:.7rem;font-weight:800;text-transform:uppercase;white-space:nowrap}
+.lvl.m{background:#fde3e0;color:#a1130a}
+.lvl.r{background:#e8f4d8;color:#26890d}
+.lvl.p{background:#ffedd0;color:#9a5a00}
+.diagram svg{display:block;width:100%;height:auto}
+.svg-title{font-size:13px;font-weight:800;fill:var(--text);text-anchor:middle}
+.svg-sub{font-size:10.5px;fill:var(--muted);text-anchor:middle}
+.fl{stroke:#53565a;stroke-width:2;stroke-dasharray:5 6;fill:none}
+.check{display:grid;grid-template-columns:repeat(2,1fr);gap:8px 18px}
+.check label{display:flex;gap:10px;align-items:flex-start;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:var(--panel);cursor:pointer;font-size:.9rem}
+.check input{margin-top:4px;accent-color:#86bc25}
+.check label.done{border-color:var(--green);color:var(--muted);text-decoration:line-through}
+.progress{height:8px;border-radius:99px;background:#e3e5e6;border:1px solid var(--line);overflow:hidden;margin:12px 0 4px}
+.progress div{height:100%;width:0;background:linear-gradient(90deg,var(--dgreen),var(--green));transition:width .25s}
+details{border:1px solid var(--line);border-radius:9px;background:var(--panel);margin:8px 0;padding:0 16px}
+details summary{padding:13px 0;cursor:pointer;font-weight:700}
+details[open] summary{color:var(--cyan)}
+details p,details ul{color:var(--muted);margin:0 0 14px}
+.no{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
+.no span{padding:7px 10px;color:#a1130a;border:1px solid #f0b3ae;border-radius:6px;background:#fdeceb;font-size:.8rem}
+.eq{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:14px 0}
+.eq span{padding:9px 13px;border:1px solid var(--line);border-radius:8px;background:var(--panel);font-size:.85rem}
+.eq i{font-style:normal;color:var(--cyan);font-weight:800}
+.eq b{padding:9px 16px;border-radius:8px;background:var(--dgreen);color:#000}
+footer{width:min(1040px,calc(100% - 48px));margin:70px auto 50px;padding-top:24px;border-top:1px solid var(--line);color:var(--muted);font-size:.84rem}
+.lightpanel{margin:14px 0;padding:16px;background:#f7f7f7;border:1px solid var(--line);border-radius:13px;box-shadow:var(--shadow)}
+.lightpanel .scroll{overflow-x:auto}
+.lightpanel svg{display:block;width:100%;min-width:760px;height:auto}
+.dt{font-size:13px;font-weight:700;fill:#000;text-anchor:middle}
+.ds{font-size:10.5px;fill:#53565a;text-anchor:middle}
+.dl{font-size:11px;font-weight:800;letter-spacing:.08em;fill:#000;text-anchor:middle}
+.dstart{text-anchor:start}
+.da{stroke:#53565a;stroke-width:2;fill:none}
+.dd{stroke:#86888a;stroke-width:1.6;fill:none;stroke-dasharray:5 5}
+.lg{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:10px;font-size:.8rem;color:#53565a}
+.lg i{display:inline-block;width:12px;height:12px;border-radius:4px;margin-right:6px;vertical-align:-1px;border:2px solid}
+.dnote{margin:10px 0 0;color:var(--muted);font-size:.92rem}
+.dnote b{color:var(--text)}
+/* Palette overrides for colours set as SVG attributes and legend swatches */
+svg [fill="#e6eeff"]{fill:#e3f1f8}
+svg [fill="#e2f5ea"]{fill:#e8f4d8}
+svg [fill="#fff2d6"]{fill:#fff1dc}
+svg [fill="#fdeeee"],svg [fill="#fdeaea"]{fill:#fdeceb}
+svg [fill="#e8eef5"]{fill:#eeeeee}
+svg [fill="#e0f4f5"]{fill:#e0f1f2}
+svg [fill="#dfe7f7"]{fill:#e1e6f2}
+svg [fill="#cdeedb"]{fill:#d3ecb0}
+svg [fill="#2f5f86"]{fill:#000}
+svg [fill="#2e9d62"]{fill:#86bc25}
+svg [fill="#3b6fd4"]{fill:#0076a8}
+svg [fill="#123448"]{fill:#eef6e3}
+svg [fill="#16364a"]{fill:#e3f1f8}
+svg [fill="#3d3422"]{fill:#fff1dc}
+svg [fill="#61d7da"]{fill:#26890d}
+svg [stroke="#3b6fd4"]{stroke:#0076a8}
+svg [stroke="#2e9d62"]{stroke:#26890d}
+svg [stroke="#c58a12"]{stroke:#ed8b00}
+svg [stroke="#c9453d"]{stroke:#da291c}
+svg [stroke="#5b7a92"]{stroke:#53565a}
+svg [stroke="#2a9aa0"]{stroke:#0d8390}
+svg [stroke="#2f4f9a"]{stroke:#012169}
+svg [stroke="#1f7a49"]{stroke:#26890d}
+svg [stroke="#2f5f86"]{stroke:#000}
+svg [stroke="#61d7da"]{stroke:#86bc25}
+svg [stroke="#83adff"]{stroke:#0076a8}
+svg [stroke="#f2c76c"]{stroke:#ed8b00}
+.lg i[style*="e6eeff"]{background:#e3f1f8!important;border-color:#0076a8!important}
+.lg i[style*="e2f5ea"]{background:#e8f4d8!important;border-color:#26890d!important}
+.lg i[style*="fff2d6"]{background:#fff1dc!important;border-color:#ed8b00!important}
+.lg i[style*="fdeeee"],.lg i[style*="fdeaea"]{background:#fdeceb!important;border-color:#da291c!important}
+.lg i[style*="e0f4f5"]{background:#e0f1f2!important;border-color:#0d8390!important}
+.lg i[style*="2f5f86"]{background:#000!important;border-color:#000!important}
+@media(max-width:1100px){.g4{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:960px){.side{transform:translateX(-100%);transition:transform .2s}.side.open{transform:none}.menu{display:block}main{margin-left:0}section{padding-top:56px}.hero{padding-top:84px}}
+@media(max-width:640px){.g2,.g3,.g4,.paths,.check{grid-template-columns:1fr}section,footer{width:calc(100% - 28px)}}
+</style>
+</head>
+<body data-path="greenfield">
+<button class="menu" id="menu" aria-label="Toggle navigation">Menu</button>
+<aside class="side" id="side">
+<a class="brand" href="#top"><b>DG</b> Developer Golden Path</a>
+<h4>Start</h4>
+<a class="nav" href="#purpose">1. Purpose</a>
+<a class="nav" href="#glance">2. Golden Path at a glance</a>
+<a class="nav" href="#setup">3. Minimum GitHub setup</a>
+<a class="nav" href="#structure">4. Repository structure</a>
+<h4>Develop</h4>
+<a class="nav" href="#before">5. Before you start coding</a>
+<a class="nav" href="#branching">6. Branching strategy</a>
+<a class="nav" href="#develop">7. Development</a>
+<a class="nav" href="#validate">8. Local validation</a>
+<a class="nav" href="#commit">9. Commit</a>
+<h4>Review</h4>
+<a class="nav" href="#pr">10. Pull request</a>
+<a class="nav" href="#ci">11. CI</a>
+<a class="nav" href="#agents">12. Agents and skills</a>
+<a class="nav" href="#human">13. Human review</a>
+<a class="nav" href="#merge">14. Merge</a>
+<h4>Deliver</h4>
+<a class="nav" href="#release">15. Release and deployment</a>
+<a class="nav" href="#rollback">16. Rollback</a>
+<a class="nav" href="#failures">17. When a check fails</a>
+<a class="nav" href="#exceptions">18. Exceptions</a>
+<h4>Reference</h4>
+<a class="nav" href="#checklist">19. Developer checklist</a>
+<a class="nav" href="#compare">20. Greenfield vs Brownfield</a>
+<a class="nav" href="#faq">21. FAQ</a>
+</aside>
+
+<main id="top">
+<section class="hero" id="hero">
+<div class="kicker">Developer guide</div>
+<h1>Developer DevOps Golden Path</h1>
+<p class="lead">As a developer, what do I do from starting a feature to safely getting it into production? Consistent software development and DevOps practices for AI projects, with AI-specific engineering practices where they add value.</p>
+<div class="badges"><span class="badge">DEVELOPER ACTIONS</span><span class="badge">CI ENFORCES</span><span class="badge">AGENTS ADVISE</span><span class="badge">HUMANS DECIDE</span><span class="badge">PHASES 1-6</span></div>
+</section>
+
+<section id="purpose">
+<div class="kicker">01 — Purpose</div>
+<h2>Why this guide exists</h2>
+<p class="sub">The policies in <code>policies/</code> say what must be true. This guide says what you do. It turns the Agentic Development and DevOps Framework into a developer routine so the correct engineering path is the easiest path.</p>
+<div class="grid g3">
+<div class="card"><div class="tag">Problem</div><h3>Rules without a routine</h3><p>Policies, CI and review contracts exist, but a developer still has to know which to use, and when.</p></div>
+<div class="card green"><div class="tag">Solution</div><h3>One path, in order</h3><p>Branch, build, validate, review, release, roll back. Each step names the command, the check and the owner.</p></div>
+<div class="card amber"><div class="tag">Relationship</div><h3>Built on the Golden Path</h3><p>It adds no phase, agent or check. Authoritative detail stays in the existing docs, linked throughout.</p></div>
+</div>
+<h3 style="margin-top:28px">Choose your adoption path</h3>
+<p class="sub" style="margin-bottom:12px">Greenfield and Brownfield are separate paths. Pick one; the guide below adapts.</p>
+<div class="paths">
+<div class="pathcard on" data-pick="greenfield" tabindex="0"><h3>Greenfield — build right from day one</h3><p>A new AI project starts from the skeleton and follows the Golden Path from the first commit.</p></div>
+<div class="pathcard" data-pick="brownfield" tabindex="0"><h3>Brownfield — assess and improve</h3><p>An existing project is not rebuilt. The skeleton is a reference standard for assessment and progressive adoption.</p></div>
+</div>
+</section>
+
+<section id="glance">
+<div class="kicker">02 — Golden Path at a glance</div>
+<h2>The whole path on one screen</h2>
+<p class="sub">Green steps are deterministic CI, red are advisory agents, amber are human decisions.</p>
+<div class="panel">
+<div class="chain">
+<span>Developer</span><i>→</i><span>Understand requirement</span><i>→</i><span>Check architecture &amp; policies</span><i>→</i><span>Create branch</span><i>→</i><span>Develop</span><i>→</i><span>Test</span><i>→</i><span>Local validation</span><i>→</i><span>Commit</span><i>→</i><span>Pull request</span><i>→</i><span class="ci">CI</span><i>→</i><span class="ag">Agents / skills</span><i>→</i><span class="hu">Human review</span><i>→</i><span class="hu">Merge</span><i>→</i><span>Release</span><i>→</i><span>Deploy</span><i>→</i><span class="hu">Verify / roll back</span>
+</div>
+</div>
+
+<div class="toggle" role="group" aria-label="Adoption path"><button data-pick="greenfield" class="on">Greenfield</button><button data-pick="brownfield">Brownfield</button></div>
+
+<div class="only-g">
+<div class="legend"><span><i style="background:var(--blue)"></i>Developer</span><span><i style="background:var(--green)"></i>CI</span><span><i style="background:var(--red)"></i>Agent / skill</span><span><i style="background:var(--amber)"></i>Human</span></div>
+<ol class="timeline">
+<li data-n="1"><b>Repository setup</b><span>Create the repo from the skeleton, run <code>bash scripts/setup.sh</code>, configure <code>PROJECT.yaml</code>, replace the <code>CODEOWNERS</code> placeholders. An administrator applies GitHub settings from <a href="../administrator-setup.md">docs/administrator-setup.md</a>.</span></li>
+<li data-n="2"><b>Architecture</b><span>Read <code>ARCHITECTURE.md</code> and the approved baseline <code>docs/architecture/baseline.yaml</code>. Record material decisions as ADRs in <code>docs/adr/</code>.</span></li>
+<li data-n="3"><b>Policies</b><span>Find the policy IDs that apply under <code>policies/</code> and list them in your PR.</span></li>
+<li data-n="4"><b>Feature branch</b><span>Branch from current <code>main</code>: <code>feature/&lt;issue&gt;-&lt;name&gt;</code>.</span></li>
+<li data-n="5"><b>Development</b><span>Code, tests, AI assets, configuration and IaC in small, reviewable steps.</span></li>
+<li data-n="6"><b>Local validation</b><span><code>bash scripts/check.sh</code> runs lint, tests, security and validation.</span></li>
+<li data-n="7"><b>Commit</b><span>Conventional Commits, no secrets, no unrelated changes.</span></li>
+<li data-n="8"><b>Pull request</b><span>Complete the PR template: risk, policy IDs, impact, testing, rollback.</span></li>
+<li data-n="9" class="ci"><b>CI</b><span>Deterministic gates run automatically and are authoritative.</span></li>
+<li data-n="10" class="ag"><b>Agent / skill review</b><span>Advisory findings from the relevant agents, with evidence and a recommendation.</span></li>
+<li data-n="11" class="hu"><b>Human review</b><span>CODEOWNERS and the specialist owners the approval matrix requires.</span></li>
+<li data-n="12" class="hu"><b>Merge</b><span>Squash merge into protected <code>main</code> after checks and approvals.</span></li>
+<li data-n="13"><b>Build</b><span>The CD workflow builds the artifact once, with a manifest and digest.</span></li>
+<li data-n="14"><b>DEV</b><span>The same artifact is verified and deployed to DEV.</span></li>
+<li data-n="15"><b>TEST / STAGING</b><span>Promoted after DEV validates; TEST/UAT is the TEST environment in this framework.</span></li>
+<li data-n="16" class="hu"><b>Production approval</b><span>An approved human reviewer approves the PROD environment.</span></li>
+<li data-n="17"><b>PROD</b><span>The same verified artifact is deployed to production.</span></li>
+<li data-n="18" class="hu"><b>Verification / rollback</b><span>Validate health and behavior. If it fails, roll back to the previous known-good artifact.</span></li>
+</ol>
+</div>
+
+<div class="only-b">
+<div class="callout info"><strong>Manual process.</strong> The repository has no assessment tooling. Brownfield assessment is a guided checklist you run by hand against the existing policies; the skeleton is a reference, not something to copy over.</div>
+<ol class="timeline">
+<li data-n="1"><b>Existing project</b><span>Pick the repository and name an owner for the assessment.</span></li>
+<li data-n="2"><b>Repository assessment</b><span>Do README, AGENTS/CONTRIBUTING-style guidance, <code>CODEOWNERS</code> and protected <code>main</code> exist? Is everything in version control and free of secrets? (<code>RP-*</code>)</span></li>
+<li data-n="3"><b>Architecture assessment</b><span>Are boundaries, APIs, data contracts and decisions documented? Are there ADRs? Is infrastructure defined as code? (<code>ARCH-*</code>, <code>ARCH-DEP-*</code>)</span></li>
+<li data-n="4"><b>DevOps assessment</b><span>Branching, PR evidence, CI gates, build-once artifacts, environment separation, production approval, tested rollback. (<code>DEVOPS-*</code>)</span></li>
+<li data-n="5"><b>Security assessment</b><span>Secrets, IAM and least privilege, dependency and vulnerability handling. (<code>SEC-*</code>, <code>SEC-SEC-*</code>, <code>SEC-IAM-*</code>)</span></li>
+<li data-n="6"><b>AI engineering assessment</b><span>Model approval, prompt handling, evaluation evidence, guardrails, data classification and contracts. (<code>AI-*</code>, <code>DATA-*</code>)</span></li>
+<li data-n="7"><b>Findings</b><span>Record each gap with the policy ID, evidence and owner.</span></li>
+<li data-n="8"><b>Risk / maturity assessment</b><span>Rank findings using <a href="../governance/risk-classification.md">risk classification</a> (Low to Critical). A simple maturity scale helps: 0 absent, 1 ad hoc, 2 documented, 3 enforced by a deterministic check. The scale is a suggestion, not a repository policy.</span></li>
+<li data-n="9"><b>Remediation roadmap</b><span>Order work by risk: secrets and protected <code>main</code> first, then CI gates, then architecture and AI practices.</span></li>
+<li data-n="10"><b>Progressive adoption</b><span>Adopt one policy area at a time. Time-bound gaps go through the <a href="#exceptions">exception process</a>.</span></li>
+</ol>
+</div>
+<p class="sub" style="margin-top:6px">The rest of the guide describes the day-to-day developer path. It applies to a Greenfield project from day one, and to a Brownfield project as each area is adopted.</p>
+</section>
+
+<section id="setup">
+<div class="kicker">03 — Minimum GitHub setup</div>
+<h2>What a new project needs before development starts</h2>
+<p class="sub">Mandatory means a policy or the repository validation requires it. GitHub settings are not committed files: a repository administrator configures them from <a href="../administrator-setup.md">docs/administrator-setup.md</a>.</p>
+<div class="tablewrap"><table>
+<thead><tr><th>Item</th><th>Level</th><th>Basis in the framework</th></tr></thead>
+<tbody>
+<tr><td>Repository with <code>README.md</code>, <code>AGENTS.md</code>, <code>CONTRIBUTING.md</code>, policies and project config</td><td><span class="lvl m">Mandatory</span></td><td><code>RP-001</code>; also checked by <code>bash scripts/validate.sh</code></td></tr>
+<tr><td>Architecture and security documentation (<code>ARCHITECTURE.md</code>, <code>SECURITY.md</code>)</td><td><span class="lvl m">Mandatory</span></td><td>Required files in the repository validation scripts</td></tr>
+<tr><td><code>CODEOWNERS</code> covering protected paths</td><td><span class="lvl m">Mandatory</span></td><td><code>RP-002</code></td></tr>
+<tr><td>Protected <code>main</code>: no direct or force push, PR, required checks, CODEOWNER approval</td><td><span class="lvl m">Mandatory</span></td><td><code>DEVOPS-BR-001</code>, <code>RP-002</code></td></tr>
+<tr><td>Pull request template and required review</td><td><span class="lvl m">Mandatory</span></td><td><code>DEVOPS-PR-001</code>, <code>DEVOPS-PR-002</code></td></tr>
+<tr><td>CI gates: build, quality, security, architecture and governance</td><td><span class="lvl m">Mandatory</span></td><td><code>DEVOPS-CI-001</code> to <code>DEVOPS-CI-004</code></td></tr>
+<tr><td>Secrets kept out of Git; environment config separate from code</td><td><span class="lvl m">Mandatory</span></td><td><code>RP-003</code>, <code>RP-004</code>, <code>DEVOPS-ENV-002</code></td></tr>
+<tr><td>Separate DEV, TEST/UAT and PROD identities, config and data access</td><td><span class="lvl m">Mandatory</span></td><td><code>DEVOPS-ENV-001</code></td></tr>
+<tr><td>Human approval before production; documented, tested rollback</td><td><span class="lvl m">Mandatory</span></td><td><code>DEVOPS-CD-003</code>, <code>DEVOPS-CD-005</code></td></tr>
+<tr><td>Dependencies documented; material decisions recorded in an ADR</td><td><span class="lvl m">Mandatory</span></td><td><code>RP-005</code>, <code>ARCH-DEP-*</code></td></tr>
+<tr><td>Work item for each change</td><td><span class="lvl m">Mandatory</span></td><td>Contribution guide, Definition of Done</td></tr>
+<tr><td>Unit tests for deterministic logic; integration/E2E when boundaries change</td><td><span class="lvl m">Mandatory</span></td><td>Definition of Done, <code>DEVOPS-PR-003</code></td></tr>
+<tr><td>Squash merge, merge queue, stale-branch cleanup</td><td><span class="lvl r">Recommended</span></td><td>Administrator setup checklist ("where appropriate")</td></tr>
+<tr><td>Pre-commit hooks, Dependabot, issue templates</td><td><span class="lvl r">Recommended</span></td><td>Present in the skeleton (<code>.pre-commit-config.yaml</code>, <code>.github/</code>)</td></tr>
+<tr><td>OIDC / workload identity for deployment</td><td><span class="lvl r">Recommended</span></td><td>Environment strategy ("where supported")</td></tr>
+<tr><td>Dependency, SAST, container and IaC scanners</td><td><span class="lvl p">Project-dependent</span></td><td><code>DEVOPS-CI-003</code>; configured through the stack overlay. Until then the check reports <code>NOT CONFIGURED</code>, never pass.</td></tr>
+<tr><td>Language lint, test commands and coverage threshold</td><td><span class="lvl p">Project-dependent</span></td><td>Stack overlay; the core checks stay in place</td></tr>
+<tr><td>DEV / TEST / PROD GitHub environments, deployment and rollback adapters</td><td><span class="lvl p">Project-dependent</span></td><td>Platform deployment is an overlay responsibility</td></tr>
+</tbody></table></div>
+</section>
+
+<section id="structure">
+<div class="kicker">04 — Repository structure</div>
+<h2>Where things live</h2>
+<p class="sub">These directories exist in the skeleton today.</p>
+<div class="grid g3">
+<div class="card"><h3><code>src/</code></h3><p>Application source and the service contract template.</p></div>
+<div class="card"><h3><code>tests/</code></h3><p><code>unit/</code>, <code>integration/</code>, <code>e2e/</code>.</p></div>
+<div class="card amber"><h3><code>ai/</code></h3><p><code>models/</code>, <code>prompts/</code>, <code>evaluations/</code>, <code>guardrails/</code> with templates.</p></div>
+<div class="card green"><h3><code>infrastructure/</code></h3><p><code>modules/</code>, <code>terraform/</code>, <code>environments/</code> (dev, test, prod).</p></div>
+<div class="card"><h3><code>config/</code></h3><p>Non-secret config: <code>dev/</code>, <code>test/</code>, <code>prod/</code>, <code>ci/</code>, <code>ai/</code> (agent routing).</p></div>
+<div class="card blue"><h3><code>docs/</code></h3><p>Architecture, ADRs, governance, deployment, onboarding, runbooks, and this guide in <code>developer/</code>.</p></div>
+<div class="card amber"><h3><code>policies/</code></h3><p>Normative policies with stable IDs: repository, architecture, devops, security, data, ai.</p></div>
+<div class="card red"><h3><code>agents/</code> and <code>skills/</code></h3><p>Four advisory agent contracts and the reusable skill contracts they use.</p></div>
+<div class="card"><h3><code>.github/</code> and <code>scripts/</code></h3><p>CODEOWNERS, PR template, branching, workflows; and the scripts behind every <code>make</code> target.</p></div>
+</div>
+</section>
+
+<section id="before">
+<div class="kicker">05 — Before you start coding</div>
+<h2>Five minutes that save a rework</h2>
+<div class="grid g2">
+<div class="card"><h3>Checklist</h3><ul>
+<li>Understand the requirement and its work item</li>
+<li>Identify the affected component</li>
+<li>Check the architecture and the baseline</li>
+<li>Check the applicable policy IDs</li>
+<li>Check ownership in <code>.github/CODEOWNERS</code></li>
+<li>Note security, data and AI implications</li>
+<li>Decide whether infrastructure changes</li>
+<li>Create the feature branch</li>
+</ul></div>
+<div class="card amber"><h3>If you cross a boundary</h3><ul>
+<li>New service, data store, public API, model or provider, RAG source, guardrail change, infrastructure pattern or breaking change: write an ADR (<code>ARCH-007</code>).</li>
+<li>The Baseline Guard reports <code>BASELINE_IMPACT</code> or <code>ARCHITECTURE_CHANGE</code> for changes touching approved boundaries.</li>
+<li>Higher-risk changes need the specialist owners in the <a href="../governance/approval-matrix.md">approval matrix</a>.</li>
+<li>If a MUST cannot be met, use the <a href="#exceptions">exception process</a>. Do not work around it.</li>
+</ul></div>
+</div>
+</section>
+
+<section id="branching">
+<div class="kicker">06 — Branching strategy</div>
+<h2>Short-lived branches, protected main</h2>
+<p class="sub">A simple trunk-based model. Sources: <a href="../../.github/BRANCHING.md">.github/BRANCHING.md</a>, <code>DEVOPS-BR-001</code> to <code>DEVOPS-BR-004</code>.</p>
+<div class="panel diagram">
+<svg viewBox="0 0 1000 170" role="img" aria-label="Short-lived branches squash merged into protected main">
+<defs><marker id="a1" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0 0L7 3L0 6Z" fill="#61d7da"/></marker></defs>
+<rect x="20" y="70" width="960" height="30" rx="15" fill="#123448" stroke="#61d7da"/><text x="500" y="90" class="svg-title">main (protected: no direct push, no force push)</text>
+<path class="fl" marker-end="url(#a1)" d="M190 36V68M500 36V68M810 36V68"/>
+<rect x="110" y="6" width="160" height="30" rx="8" fill="#16364a" stroke="#83adff"/><text x="190" y="26" class="svg-sub">feature/123-summary</text>
+<rect x="420" y="6" width="160" height="30" rx="8" fill="#16364a" stroke="#83adff"/><text x="500" y="26" class="svg-sub">bugfix/145-empty-rag</text>
+<rect x="730" y="6" width="160" height="30" rx="8" fill="#3d3422" stroke="#f2c76c"/><text x="810" y="26" class="svg-sub">hotfix/INC-9-timeout</text>
+<text x="500" y="140" class="svg-sub">PR + required checks + CODEOWNER approval, then squash merge. Delete the branch after merge.</text>
+</svg></div>
+<div class="grid g3" style="margin-top:14px">
+<div class="card"><h3>Naming</h3><p><code>feature/&lt;issue&gt;-&lt;short-name&gt;</code><br><code>bugfix/&lt;issue&gt;-&lt;short-name&gt;</code><br><code>hotfix/&lt;incident&gt;-&lt;short-name&gt;</code></p></div>
+<div class="card green"><h3>Lifetime</h3><p>One work item per branch, kept short. Merged branches are deleted; owners review stale ones.</p></div>
+<div class="card blue"><h3>Stay current</h3><p>Rebase or update from <code>main</code> before merge when required checks depend on current <code>main</code>. Do not force-push shared branches without maintainer approval.</p></div>
+<div class="card amber"><h3>Hotfix</h3><p>Must reference an incident or change record and follow the <a href="../break-glass-procedure.md">break-glass procedure</a> if protections are bypassed.</p></div>
+<div class="card red"><h3>Release branches</h3><p>Not part of the default model. Add them only with an ADR and release-owner approval. This is not GitFlow.</p></div>
+<div class="card"><h3>Protected main</h3><p>No direct development on <code>main</code>. Everything goes through a PR.</p></div>
+</div>
+</section>
+
+<section id="develop">
+<div class="kicker">07 — Development</div>
+<h2>What good looks like while you build</h2>
+<div class="grid g3">
+<div class="card"><div class="tag">Code</div><ul>
+<li>Small, modular, readable changes; follow the stack overlay</li>
+<li>Handle errors explicitly; log without secrets or PII</li>
+<li>Keep config out of code and secrets out of Git</li>
+<li>Document changed interfaces and configuration</li>
+</ul></div>
+<div class="card green"><div class="tag">Tests</div><ul>
+<li>Unit tests for deterministic logic (<code>tests/unit/</code>)</li>
+<li>Integration tests when a boundary changes (<code>tests/integration/</code>)</li>
+<li>End-to-end tests when a workflow changes (<code>tests/e2e/</code>)</li>
+<li>Do not lower coverage thresholds to pass</li>
+</ul></div>
+<div class="card amber"><div class="tag">AI</div><ul>
+<li>Use the templates in <code>ai/models</code>, <code>ai/prompts</code>, <code>ai/evaluations</code>, <code>ai/guardrails</code></li>
+<li>No secrets or sensitive data in prompts</li>
+<li>Show evaluation evidence for model, prompt, RAG or guardrail changes</li>
+<li>AI-generated code gets the same tests, scans and review</li>
+</ul></div>
+<div class="card blue"><div class="tag">Data</div><ul>
+<li>Classify data and know where PII is (<code>DATA_POLICY.md</code>)</li>
+<li>Keep data contracts versioned (<code>DATA-CON-*</code>)</li>
+<li>Use only approved test data; no production data in DEV or TEST</li>
+<li>Declare data impact in the PR</li>
+</ul></div>
+<div class="card red"><div class="tag">Infrastructure</div><ul>
+<li>Production infrastructure as reviewed code (<code>ARCH-006</code>)</li>
+<li>Keep DEV, TEST and PROD separate</li>
+<li>Least privilege for identities and tokens (<code>SEC-IAM-*</code>)</li>
+<li>State rollback for infrastructure changes</li>
+</ul></div>
+</div>
+</section>
+
+<section id="validate">
+<div class="kicker">08 — Local validation</div>
+<h2>Fix local failures before opening the PR</h2>
+<p class="sub">These are the repository's own commands, and CI runs the same scripts. On Windows use Git Bash or WSL.</p>
+<div class="tablewrap"><table>
+<thead><tr><th>Command</th><th>What it does</th></tr></thead>
+<tbody>
+<tr><td><code>bash scripts/setup.sh</code></td><td>Bootstrap a new project (review <code>PROJECT.yaml</code> afterwards)</td></tr>
+<tr><td><code>bash scripts/lint.sh</code></td><td>Runs pre-commit hooks when installed; otherwise reports that no lint is configured</td></tr>
+<tr><td><code>bash scripts/test.sh</code></td><td>Runs project tests via the stack overlay; reports none configured in the core</td></tr>
+<tr><td><code>bash scripts/security.sh</code></td><td>High-confidence secret scan; optional external scanner when installed</td></tr>
+<tr><td><code>bash scripts/validate.sh</code></td><td>Repository structure, policy IDs and references, and the baseline guard scenario tests</td></tr>
+<tr><td><code>bash scripts/check.sh</code></td><td>Lint, test, security and validation together: the full baseline before a PR</td></tr>
+<tr><td><code>bash scripts/validate-baseline.sh</code></td><td>Classifies your change against the architecture baseline. Needs a changed-file list (below).</td></tr>
+</tbody></table></div>
+<pre style="margin-top:14px">git diff --name-only origin/main...HEAD > changed-files.txt
+CHANGED_FILES_FILE=changed-files.txt bash scripts/validate-baseline.sh
+CHANGED_FILES_FILE=changed-files.txt bash scripts/validate-risk.sh</pre>
+<div class="callout">Do not hide failures, lower thresholds or treat an unavailable required check as passed. A check that cannot run reports <code>NOT CONFIGURED</code>. If a check fails on a clean <code>main</code>, tell the repository maintainer rather than working around it.</div>
+</section>
+
+<section id="commit">
+<div class="kicker">09 — Commit</div>
+<h2>Small, meaningful, safe</h2>
+<div class="grid g2">
+<div class="card"><h3>Rules</h3><ul>
+<li>Conventional Commits: <code>type(scope): imperative summary</code></li>
+<li>Types: feat, fix, docs, test, refactor, build, ci, chore</li>
+<li>One focused change; no unrelated edits</li>
+<li>No secrets, generated output or temporary files</li>
+<li>Traceable to the work item; keep commits reviewable</li>
+</ul></div>
+<div class="card green"><h3>Examples</h3><pre>feat(summary): add customer summary endpoint
+fix(rag): handle empty retrieval result
+test(summary): cover missing customer id
+docs(adr): record vector store decision
+ci: pin checkout action version</pre></div>
+</div>
+</section>
+
+<section id="pr">
+<div class="kicker">10 — Pull request</div>
+<h2>A PR a reviewer can approve in one pass</h2>
+<p class="sub">Complete every relevant section of the PR template. Sections that do not apply need a reason.</p>
+<div class="lightpanel"><div class="scroll">
+<svg viewBox="0 0 1200 250" role="img" aria-labelledby="d1t d1d">
+<title id="d1t">Developer feature flow</title>
+<desc id="d1d">A developer creates a feature branch, develops and tests, then opens a pull request. Automated CI runs, then a human reviews and approves, and the change is squash merged to main. If CI fails or changes are requested, the developer fixes and pushes again. Agent findings are advisory input to the human review.</desc>
+<defs><marker id="dm1" markerWidth="9" markerHeight="9" refX="8" refY="4" orient="auto"><path d="M0 0L8 4L0 8Z" fill="#51697a"/></marker></defs>
+<rect x="30" y="28" width="702" height="28" rx="14" fill="#e6eeff" stroke="#3b6fd4"/><text x="381" y="46" class="dl">DEVELOPER ACTIVITIES</text>
+<rect x="760" y="28" width="118" height="28" rx="14" fill="#e2f5ea" stroke="#2e9d62"/><text x="819" y="46" class="dl">AUTOMATED CI</text>
+<rect x="906" y="28" width="264" height="28" rx="14" fill="#fff2d6" stroke="#c58a12"/><text x="1038" y="46" class="dl">HUMAN APPROVAL</text>
+<path class="da" marker-end="url(#dm1)" d="M150 126H172M296 126H318M442 126H464M588 126H610M734 126H756M880 126H902M1026 126H1048"/>
+<rect x="30" y="90" width="118" height="72" rx="14" fill="#e6eeff" stroke="#3b6fd4" stroke-width="2"/><text x="89" y="122" class="dt">Developer</text><text x="89" y="142" class="ds">takes a work item</text>
+<rect x="176" y="90" width="118" height="72" rx="14" fill="#e6eeff" stroke="#3b6fd4" stroke-width="2"/><text x="235" y="122" class="dt">Feature Branch</text><text x="235" y="142" class="ds">from current main</text>
+<rect x="322" y="90" width="118" height="72" rx="14" fill="#e6eeff" stroke="#3b6fd4" stroke-width="2"/><text x="381" y="122" class="dt">Development</text><text x="381" y="142" class="ds">code, AI, IaC</text>
+<rect x="468" y="90" width="118" height="72" rx="14" fill="#e6eeff" stroke="#3b6fd4" stroke-width="2"/><text x="527" y="122" class="dt">Tests</text><text x="527" y="142" class="ds">bash scripts/check.sh</text>
+<rect x="614" y="90" width="118" height="72" rx="14" fill="#e6eeff" stroke="#3b6fd4" stroke-width="2"/><text x="673" y="122" class="dt">Pull Request</text><text x="673" y="142" class="ds">template + risk</text>
+<rect x="760" y="90" width="118" height="72" rx="14" fill="#e2f5ea" stroke="#2e9d62" stroke-width="2"/><text x="819" y="122" class="dt">CI</text><text x="819" y="142" class="ds">required checks</text>
+<rect x="906" y="90" width="118" height="72" rx="14" fill="#fff2d6" stroke="#c58a12" stroke-width="2"/><text x="965" y="122" class="dt">Human Review</text><text x="965" y="142" class="ds">CODEOWNERS</text>
+<rect x="1052" y="90" width="118" height="72" rx="14" fill="#fff2d6" stroke="#c58a12" stroke-width="2"/><text x="1111" y="122" class="dt">Merge to Main</text><text x="1111" y="142" class="ds">squash merge</text>
+<path class="da" marker-end="url(#dm1)" d="M819 166V208H381V166"/>
+<text x="600" y="228" class="ds">CI fails or changes requested: fix and push again</text>
+<rect x="880" y="186" width="170" height="44" rx="10" fill="#fdeeee" stroke="#c9453d" stroke-dasharray="5 4"/><text x="965" y="205" class="dt">Agent findings</text><text x="965" y="221" class="ds">advisory only</text>
+<path class="dd" d="M965 186V166"/>
+</svg></div>
+<div class="lg"><span><i style="background:#e6eeff;border-color:#3b6fd4"></i>Developer activity</span><span><i style="background:#e2f5ea;border-color:#2e9d62"></i>Automated CI</span><span><i style="background:#fff2d6;border-color:#c58a12"></i>Human approval</span><span><i style="background:#fdeeee;border-color:#c9453d"></i>Agent finding (advisory)</span></div></div>
+<p class="dnote"><b>What you do:</b> branch from current <code>main</code> using <code>feature/&lt;issue&gt;-&lt;name&gt;</code>, build and test the change, run <code>bash scripts/check.sh</code>, then open a PR with the template completed. Fix CI failures and review comments on the same branch. The merge happens only after required checks pass and a required human approves; an agent recommendation alone is never enough.</p>
+<div class="grid g3" style="margin-top:14px">
+<div class="card"><h3>Change</h3><p>What changed, why, related work item.</p></div>
+<div class="card amber"><h3>Risk and applicability</h3><p>Low, Medium, High or Critical; applicable policy IDs; required approvals.</p></div>
+<div class="card blue"><h3>Engineering impact</h3><p>Architecture and API, configuration and infrastructure, data.</p></div>
+<div class="card green"><h3>Testing</h3><p>Output of <code>bash scripts/check.sh</code>; unit, integration and E2E evidence.</p></div>
+<div class="card red"><h3>Security and AI impact</h3><p>Secrets, IAM, dependencies; model, prompt, RAG, evaluation, guardrail changes.</p></div>
+<div class="card"><h3>Operations and governance</h3><p>Deployment impact, post-deployment validation, rollback; ADR or exception link; baseline declaration; AI assistance used.</p></div>
+</div>
+<div class="callout info"><strong>When an ADR is needed:</strong> a new service, external dependency, data store, public API, model or provider, RAG source, guardrail change, infrastructure pattern, security exception or breaking change. Normal feature work does not need one. If the Baseline Guard reports <code>ARCHITECTURE_CHANGE</code>, the ADR must set <code>Baseline impact: change</code> and list the boundaries.</div>
+</section>
+
+<section id="ci">
+<div class="kicker">11 — CI</div>
+<h2>What happens automatically</h2>
+<p class="sub"><strong>CI is responsible for deterministic enforcement.</strong> It is repeatable and authoritative. AI agents do not replace it and cannot override it.</p>
+<div class="tablewrap"><table>
+<thead><tr><th>Workflow</th><th>Checks</th><th>Status in the skeleton</th></tr></thead>
+<tbody>
+<tr><td><code>ci.yml</code></td><td>Build artifact; core repository validation</td><td>Core</td></tr>
+<tr><td><code>policy.yml</code></td><td>Repository structure and ownership, policy IDs, exceptions, PR governance, risk paths, architecture baseline impact</td><td>Core</td></tr>
+<tr><td><code>quality.yml</code></td><td>Lint and tests</td><td>Conditional on stack overlay</td></tr>
+<tr><td><code>security.yml</code></td><td>Secret scanning; dependency, container and IaC scanners when assets and scanners exist</td><td>Secrets: core. Others: conditional</td></tr>
+<tr><td><code>infrastructure.yml</code></td><td>Terraform format and validation</td><td>Conditional on IaC assets</td></tr>
+<tr><td><code>cd.yml</code></td><td>Build once, verify, promote DEV, TEST, PROD</td><td>Runs on version tags or manual dispatch</td></tr>
+</tbody></table></div>
+<div class="grid g2" style="margin-top:14px">
+<div class="card green"><h3>Baseline Guard</h3><p>A script run by <code>policy.yml</code> on PRs. It classifies changes as <code>NO_BASELINE_IMPACT</code>, <code>BASELINE_IMPACT</code> or <code>ARCHITECTURE_CHANGE</code> and prints the reviews needed. It fails only when the ADR rule is not met and the baseline is <code>approved</code>; while the baseline is <code>draft</code> it warns.</p></div>
+<div class="card amber"><h3>Reading the result</h3><p><code>NOT CONFIGURED</code> means a stack-specific check does not exist yet. It is not a pass. Configure it in your stack overlay.</p></div>
+</div>
+</section>
+
+<section id="agents">
+<div class="kicker">12 — Agents and skills</div>
+<h2>What to expect from the four agents</h2>
+<p class="sub">Agents are advisory and read-only. They select the relevant skills for the files you changed (routing: <code>config/ai/agent-routing.yaml</code>) and report findings with evidence, severity and a recommendation. The repository defines the contracts and routing; it does not include an autonomous agent runtime.</p>
+<div class="grid g4">
+<div class="card"><div class="tag">Architecture Agent</div><ul><li>Architecture and boundaries</li><li>Dependencies</li><li>ADRs</li><li>Design trade-offs</li></ul></div>
+<div class="card red"><div class="tag">Security &amp; DevOps Agent</div><ul><li>Security and IAM</li><li>Secrets</li><li>Infrastructure</li><li>CI/CD and deployment risk</li></ul></div>
+<div class="card amber"><div class="tag">AI Engineering Agent</div><ul><li>Models and prompts</li><li>RAG</li><li>Guardrails and evaluations</li><li>AI-specific risk</li></ul></div>
+<div class="card green"><div class="tag">Code Quality Agent</div><ul><li>Maintainability</li><li>Tests and complexity</li><li>Duplication</li><li>Error handling</li></ul></div>
+</div>
+<div class="grid g3" style="margin-top:14px">
+<div class="card"><h3>How the pieces fit</h3><ul><li><b>Policy</b> = WHAT must be true</li><li><b>Skill</b> = HOW a check is done</li><li><b>Agent</b> = WHO reasons about it</li><li><b>Workflow</b> = WHEN it runs</li><li><b>Human</b> = ACCOUNTABILITY</li></ul></div>
+<div class="card blue"><h3>What a finding looks like</h3><p>Finding ID, agent and skill, severity, confidence, policy ID, file and line, evidence, recommendation, human action needed, and disposition. See <a href="../agent-output.md">docs/agent-output.md</a>.</p></div>
+<div class="card amber"><h3>Your response</h3><p>Fix it, or record a disposition with a reason: accepted, rejected, false-positive or resolved. A human reviewer owns the final call.</p></div>
+</div>
+</section>
+
+<section id="human">
+<div class="kicker">13 — Human review</div>
+<h2>Agents recommend. Humans decide.</h2>
+<div class="grid g2">
+<div class="card amber"><h3>Humans stay accountable for</h3><ul>
+<li>Architecture decisions and baseline changes</li>
+<li>High-risk security decisions</li>
+<li>Production approvals</li>
+<li>Exceptions and policy overrides</li>
+<li>Significant AI changes</li>
+</ul></div>
+<div class="card red"><h3>Agents must not</h3>
+<div class="no"><span>Merge PRs</span><span>Approve production</span><span>Grant IAM</span><span>Bypass CI</span><span>Approve exceptions</span><span>Override security controls</span><span>Approve architecture changes</span><span>Modify the baseline</span></div></div>
+</div>
+<div class="tablewrap" style="margin-top:14px"><table>
+<thead><tr><th>Your change touches</th><th>Human approval (approval matrix)</th></tr></thead>
+<tbody>
+<tr><td>Documentation, tests</td><td>CODEOWNER</td></tr>
+<tr><td>API, service boundary, architecture, major dependency</td><td>Architecture owner</td></tr>
+<tr><td>Infrastructure, Terraform, environment, deployment</td><td>Platform owner</td></tr>
+<tr><td>IAM, trust boundary, secrets, security control</td><td>Security owner</td></tr>
+<tr><td>Data contract, PII, retention, classification</td><td>Data owner (plus security/privacy)</td></tr>
+<tr><td>Model, prompt, RAG, evaluation, guardrail</td><td>AI owner (plus security/data)</td></tr>
+<tr><td>Production configuration or release</td><td>Explicit production approver</td></tr>
+</tbody></table></div>
+<p class="sub" style="margin-top:10px">Full matrix: <a href="../governance/approval-matrix.md">docs/governance/approval-matrix.md</a>. Approvals are cumulative; High and Critical changes need the accountable risk owner as well.</p>
+</section>
+
+<section id="merge">
+<div class="kicker">14 — Merge</div>
+<h2>When it is ready</h2>
+<div class="eq"><span>CI passes</span><i>+</i><span>Required human reviews</span><i>+</i><span>Agent findings addressed</span><i>+</i><span>ADR / exception recorded where triggered</span><i>+</i><span>No unresolved blocking feedback</span><i>=</i><b>MERGE</b></div>
+<ul>
+<li>Required checks and CODEOWNER or designated human approval are enforced by branch protection. The number of approvers is set by the administrator, not by this guide.</li>
+<li>Agent findings are advisory, but each should be fixed or carry a recorded disposition. A merge is never justified by an AI recommendation alone.</li>
+<li>Squash merge is the default. Delete the branch afterwards.</li>
+</ul>
+</section>
+
+<section id="release">
+<div class="kicker">15 — Release and deployment</div>
+<h2>Build once, promote the same artifact</h2>
+<div class="lightpanel"><div class="scroll">
+<svg viewBox="0 0 1200 470" role="img" aria-labelledby="d2t d2d">
+<title id="d2t">Release and deployment flow</title>
+<desc id="d2d">Short-lived feature branches leave the protected main trunk and return through a pull request, CI, review and merge. Version tags such as Release 1.0, 1.1 and 1.2 mark releases on main. Each release tag runs the same pipeline: build once, deploy to DEV, validate in TEST/UAT, then after human approval promote the same artifact to PROD.</desc>
+<defs><marker id="dm2" markerWidth="9" markerHeight="9" refX="8" refY="4" orient="auto"><path d="M0 0L8 4L0 8Z" fill="#51697a"/></marker></defs>
+<rect x="40" y="14" width="76" height="26" rx="13" fill="#e6eeff" stroke="#3b6fd4"/><text x="78" y="32" class="dt" style="font-size:12px">Feature</text>
+<rect x="136" y="14" width="76" height="26" rx="13" fill="#e6eeff" stroke="#3b6fd4"/><text x="174" y="32" class="dt" style="font-size:12px">PR</text>
+<rect x="232" y="14" width="76" height="26" rx="13" fill="#e2f5ea" stroke="#2e9d62"/><text x="270" y="32" class="dt" style="font-size:12px">CI</text>
+<rect x="328" y="14" width="76" height="26" rx="13" fill="#fff2d6" stroke="#c58a12"/><text x="366" y="32" class="dt" style="font-size:12px">Review</text>
+<rect x="424" y="14" width="76" height="26" rx="13" fill="#fff2d6" stroke="#c58a12"/><text x="462" y="32" class="dt" style="font-size:12px">Merge</text>
+<path class="da" marker-end="url(#dm2)" d="M118 27H132M214 27H228M310 27H324M406 27H420"/>
+<text x="520" y="31" class="ds dstart">Short-lived branches return to main through a pull request</text>
+<path d="M40 200H1160" stroke="#2f5f86" stroke-width="6" stroke-linecap="round" fill="none"/>
+<path d="M120 200C120 150 140 120 180 120H270C310 120 330 150 330 200" stroke="#3b6fd4" stroke-width="4" fill="none"/>
+<path d="M450 200C450 150 470 120 510 120H620C660 120 680 150 680 200" stroke="#3b6fd4" stroke-width="4" fill="none"/>
+<path d="M800 200C800 150 820 120 860 120H950C990 120 1010 150 1010 200" stroke="#3b6fd4" stroke-width="4" fill="none"/>
+<circle cx="200" cy="120" r="5" fill="#3b6fd4"/><circle cx="250" cy="120" r="5" fill="#3b6fd4"/><circle cx="540" cy="120" r="5" fill="#3b6fd4"/><circle cx="590" cy="120" r="5" fill="#3b6fd4"/><circle cx="890" cy="120" r="5" fill="#3b6fd4"/><circle cx="930" cy="120" r="5" fill="#3b6fd4"/>
+<text x="225" y="102" class="ds">feature/&lt;issue&gt;-&lt;name&gt;</text><text x="565" y="102" class="ds">bugfix/&lt;issue&gt;-&lt;name&gt;</text><text x="905" y="102" class="ds">feature/&lt;issue&gt;-&lt;name&gt;</text>
+<circle cx="60" cy="200" r="7" fill="#fff" stroke="#2f5f86" stroke-width="3"/><circle cx="120" cy="200" r="7" fill="#fff" stroke="#2f5f86" stroke-width="3"/><circle cx="450" cy="200" r="7" fill="#fff" stroke="#2f5f86" stroke-width="3"/><circle cx="800" cy="200" r="7" fill="#fff" stroke="#2f5f86" stroke-width="3"/><circle cx="1130" cy="200" r="7" fill="#fff" stroke="#2f5f86" stroke-width="3"/>
+<circle cx="330" cy="200" r="7" fill="#2f5f86"/><circle cx="680" cy="200" r="7" fill="#2f5f86"/><circle cx="1010" cy="200" r="7" fill="#2f5f86"/>
+<rect x="313" y="150" width="34" height="20" rx="10" fill="#fff" stroke="#3b6fd4" stroke-width="2"/><text x="330" y="164" class="dt" style="font-size:11px">PR</text>
+<rect x="663" y="150" width="34" height="20" rx="10" fill="#fff" stroke="#3b6fd4" stroke-width="2"/><text x="680" y="164" class="dt" style="font-size:11px">PR</text>
+<rect x="993" y="150" width="34" height="20" rx="10" fill="#fff" stroke="#3b6fd4" stroke-width="2"/><text x="1010" y="164" class="dt" style="font-size:11px">PR</text>
+<text x="40" y="232" class="dl dstart">MAIN / TRUNK</text><text x="40" y="247" class="ds dstart">protected branch</text>
+<circle cx="380" cy="200" r="9" fill="#2e9d62" stroke="#fff" stroke-width="2"/><circle cx="730" cy="200" r="9" fill="#2e9d62" stroke="#fff" stroke-width="2"/><circle cx="1060" cy="200" r="9" fill="#2e9d62" stroke="#fff" stroke-width="2"/>
+<path class="dd" d="M380 209V228M730 209V228M1060 209V228"/>
+<rect x="330" y="228" width="100" height="40" rx="12" fill="#e2f5ea" stroke="#2e9d62" stroke-width="2"/><text x="380" y="245" class="dt" style="font-size:12px">Release 1.0</text><text x="380" y="260" class="ds">tag v1.0.0</text>
+<rect x="680" y="228" width="100" height="40" rx="12" fill="#e2f5ea" stroke="#2e9d62" stroke-width="2"/><text x="730" y="245" class="dt" style="font-size:12px">Release 1.1</text><text x="730" y="260" class="ds">tag v1.1.0</text>
+<rect x="1010" y="228" width="100" height="40" rx="12" fill="#e2f5ea" stroke="#2e9d62" stroke-width="2"/><text x="1060" y="245" class="dt" style="font-size:12px">Release 1.2</text><text x="1060" y="260" class="ds">tag v1.2.0</text>
+<path class="dd" d="M380 268V292M730 268V292M1060 268V292M330 292H1060"/>
+<path class="da" marker-end="url(#dm2)" d="M330 292V318"/>
+<rect x="80" y="322" width="140" height="70" rx="14" fill="#e8eef5" stroke="#5b7a92" stroke-width="2"/><text x="150" y="354" class="dt">Main</text><text x="150" y="373" class="ds">approved commit</text>
+<rect x="260" y="322" width="140" height="70" rx="14" fill="#e2f5ea" stroke="#2e9d62" stroke-width="2"/><text x="330" y="354" class="dt">Release</text><text x="330" y="373" class="ds">tag v*.*.*</text>
+<rect x="440" y="322" width="140" height="70" rx="14" fill="#e8eef5" stroke="#5b7a92" stroke-width="2"/><text x="510" y="354" class="dt">Build once</text><text x="510" y="373" class="ds">artifact + digest</text>
+<rect x="620" y="322" width="140" height="70" rx="14" fill="#e0f4f5" stroke="#2a9aa0" stroke-width="2"/><text x="690" y="354" class="dt">DEV</text><text x="690" y="373" class="ds">verify, deploy</text>
+<rect x="800" y="322" width="140" height="70" rx="14" fill="#e0f4f5" stroke="#2a9aa0" stroke-width="2"/><text x="870" y="354" class="dt">TEST / UAT</text><text x="870" y="373" class="ds">verify, validate</text>
+<rect x="980" y="322" width="140" height="70" rx="14" fill="#dfe7f7" stroke="#2f4f9a" stroke-width="2"/><text x="1050" y="354" class="dt">PROD</text><text x="1050" y="373" class="ds">same artifact</text>
+<path class="da" marker-end="url(#dm2)" d="M222 357H256M402 357H436M582 357H616M762 357H796M942 357H976"/>
+<path class="dd" d="M960 406V362"/>
+<rect x="900" y="406" width="120" height="24" rx="12" fill="#fff2d6" stroke="#c58a12" stroke-width="2"/><text x="960" y="422" class="dt" style="font-size:11px">Human approval</text>
+<text x="600" y="456" class="ds">Every release tag runs the same pipeline: the artifact is built once and the same artifact is promoted.</text>
+</svg></div>
+<div class="lg"><span><i style="background:#e6eeff;border-color:#3b6fd4"></i>Short-lived branch</span><span><i style="background:#2f5f86;border-color:#2f5f86"></i>Merge to main</span><span><i style="background:#e2f5ea;border-color:#2e9d62"></i>Release / CI</span><span><i style="background:#e0f4f5;border-color:#2a9aa0"></i>DEV and TEST/UAT</span><span><i style="background:#fff2d6;border-color:#c58a12"></i>Human approval</span></div></div>
+<p class="dnote"><b>What you do:</b> keep branches short and merge through a PR, never directly to <code>main</code>. A release is a version tag on <code>main</code> (<code>v*.*.*</code>); the version numbers shown are illustrative. The CD workflow builds once and verifies the artifact before each stage, promoting DEV, then TEST/UAT, then PROD only after the human approval on the PROD environment. Check each environment after it deploys, and keep the release's commit, artifact digest and approver recorded.</p>
+<div class="grid g3" style="margin-top:14px">
+<div class="card"><h3>Immutable artifact</h3><p><code>bash scripts/build-artifact.sh</code> creates the artifact with a manifest and SHA-256 digest. <code>bash scripts/verify-artifact.sh</code> checks it before every stage. Never rebuild per environment.</p></div>
+<div class="card green"><h3>Environment separation</h3><p>DEV, TEST/UAT and PROD have separate identities, config, secrets and data access. Config lives outside the artifact.</p></div>
+<div class="card amber"><h3>Approvals and identity</h3><p>PROD needs approved human reviewers, configured on the GitHub environment. Use OIDC or workload identity where supported.</p></div>
+<div class="card blue"><h3>Traceability</h3><p>Production, artifact, commit, PR, reviewer, CI result and deployment record stay connected.</p></div>
+<div class="card"><h3>How it starts</h3><p><code>cd.yml</code> runs on version tags (<code>v*.*.*</code>) or manual dispatch: build-once, then dev, test, production jobs in order.</p></div>
+<div class="card red"><h3>Project overlay</h3><p><code>bash scripts/deployment-hook.sh</code> reports <code>NOT CONFIGURED</code> until your stack overlay supplies a deployment adapter.</p></div>
+</div>
+</section>
+
+<section id="rollback">
+<div class="kicker">16 — Rollback</div>
+<h2>When a deployment goes wrong</h2>
+<div class="lightpanel"><div class="scroll">
+<svg viewBox="0 0 1200 260" role="img" aria-labelledby="d3t d3d">
+<title id="d3t">Rollback to the previous known-good release</title>
+<desc id="d3d">Production is running Release 1.2. A production issue is detected. After human approval, rollback redeploys Release 1.1, the previous verified artifact, to production. Production is then back on the known-good version.</desc>
+<defs><marker id="dm3" markerWidth="9" markerHeight="9" refX="8" refY="4" orient="auto"><path d="M0 0L8 4L0 8Z" fill="#51697a"/></marker></defs>
+<text x="40" y="44" class="dl dstart">PRODUCTION TIMELINE</text>
+<path class="da" marker-end="url(#dm3)" d="M193 108H230M387 108H424M581 108H618M775 108H812M969 108H1006"/>
+<rect x="40" y="70" width="150" height="76" rx="14" fill="#dfe7f7" stroke="#2f4f9a" stroke-width="2"/><text x="115" y="104" class="dt">PROD</text><text x="115" y="124" class="ds">production environment</text>
+<rect x="234" y="70" width="150" height="76" rx="14" fill="#e8eef5" stroke="#5b7a92" stroke-width="2"/><text x="309" y="104" class="dt">Release 1.2</text><text x="309" y="124" class="ds">deployed artifact</text>
+<rect x="428" y="70" width="150" height="76" rx="14" fill="#fdeaea" stroke="#c9453d" stroke-width="2"/><text x="503" y="98" class="dt">Production issue</text><text x="503" y="114" class="dt">detected</text><text x="503" y="134" class="ds">health, data, security</text>
+<rect x="622" y="70" width="150" height="76" rx="14" fill="#fff2d6" stroke="#c58a12" stroke-width="2"/><text x="697" y="104" class="dt">Rollback</text><text x="697" y="124" class="ds">human approval</text>
+<rect x="816" y="70" width="150" height="76" rx="14" fill="#e2f5ea" stroke="#2e9d62" stroke-width="2"/><text x="891" y="104" class="dt">Release 1.1</text><text x="891" y="124" class="ds">previous verified artifact</text>
+<rect x="1010" y="70" width="150" height="76" rx="14" fill="#cdeedb" stroke="#1f7a49" stroke-width="2"/><text x="1085" y="98" class="dt">Known-good</text><text x="1085" y="114" class="dt">version</text><text x="1085" y="134" class="ds">restored in PROD</text>
+<path class="da" marker-end="url(#dm3)" d="M697 150V196H115V150"/>
+<text x="406" y="190" class="ds" style="font-weight:700">Rollback returns production to the previous known-good artifact</text>
+<text x="406" y="222" class="ds">Selected by manifest and digest (ROLLBACK_ARTIFACT, ROLLBACK_DIGEST). Data migrations are not reversed.</text>
+</svg></div>
+<div class="lg"><span><i style="background:#fdeaea;border-color:#c9453d"></i>Problem</span><span><i style="background:#fff2d6;border-color:#c58a12"></i>Human approval</span><span><i style="background:#e2f5ea;border-color:#2e9d62"></i>Known-good release</span></div></div>
+<p class="dnote"><b>What you do:</b> if production health, security, data or behavior fails after a release, raise it to the incident lead or production owner. Once approved, redeploy the previous verified artifact rather than rebuilding, then validate and record the result. Fix the cause through the normal PR path afterwards.</p>
+<ol class="timeline">
+<li data-n="1"><b>Identify the failed deployment</b><span>Health, security, data integrity, availability or business behavior has failed.</span></li>
+<li data-n="2"><b>Assess impact</b><span>Declare an incident or change record and capture the current artifact and evidence. The incident lead or production owner decides on rollback.</span></li>
+<li data-n="3" class="hu"><b>Roll back to the previous known-good artifact</b><span>Select it by manifest and digest (<code>ROLLBACK_ARTIFACT</code>, <code>ROLLBACK_DIGEST</code>), confirm config and data compatibility, get human emergency approval (<code>ROLLBACK_APPROVED</code>), then run <code>bash scripts/rollback-hook.sh</code>.</span></li>
+<li data-n="4"><b>Validate</b><span>Check health, security, data integrity and user impact. Record result, approver and digest.</span></li>
+<li data-n="5"><b>Raise an incident or bug</b><span>Track it to a work item.</span></li>
+<li data-n="6"><b>Investigate the root cause</b><span>Feed recurring causes into the learning loop.</span></li>
+<li data-n="7"><b>Fix, test, redeploy</b><span>Use the normal path: branch, PR, CI, review, merge, promote. A <code>hotfix/</code> branch is for urgent incidents.</span></li>
+</ol>
+<div class="callout warn">Rollback does not reverse data migrations. Plan a forward fix or an approved recovery. See <a href="../deployment/rollback.md">docs/deployment/rollback.md</a>. Emergency bypass of protections follows the <a href="../break-glass-procedure.md">break-glass procedure</a>; the rollback hook itself is project-overlay specific.</div>
+</section>
+
+<section id="failures">
+<div class="kicker">17 — When a check fails</div>
+<h2>First action and owner</h2>
+<div class="tablewrap"><table>
+<thead><tr><th>Failure</th><th>First action</th><th>Owner</th></tr></thead>
+<tbody>
+<tr><td>Test failure</td><td>Fix the test or the code</td><td>Developer</td></tr>
+<tr><td>Secret detected (<code>SEC-SEC-001</code>)</td><td>Remove it from the change and history, then rotate it. Committed secrets cannot be excepted.</td><td>Developer, security owner</td></tr>
+<tr><td>Dependency vulnerability</td><td>Upgrade, or assess and document the risk</td><td>Developer, security owner</td></tr>
+<tr><td>Policy violation (<code>RP-005</code> and others)</td><td>Remediate, or request an exception</td><td>Developer, policy owner</td></tr>
+<tr><td>PR governance failure</td><td>Complete the missing PR template section or declaration</td><td>Developer</td></tr>
+<tr><td><code>BASELINE_IMPACT</code></td><td>Get the relevant agent and owner review</td><td>Developer, matching owners</td></tr>
+<tr><td><code>ARCHITECTURE_CHANGE</code> / <code>ARCH-BL-002</code> failure</td><td>Add or fix the ADR; request architecture owner approval</td><td>Developer, architecture owner</td></tr>
+<tr><td>Architecture finding</td><td>Review the design; add or update the ADR</td><td>Developer, architecture owner</td></tr>
+<tr><td>AI finding</td><td>Review prompt, model, RAG or guardrail evidence</td><td>Developer, AI owner</td></tr>
+<tr><td>CI configuration issue</td><td>Fix the workflow in a PR; do not disable the check</td><td>Developer, platform owner</td></tr>
+<tr><td><code>NOT CONFIGURED</code></td><td>Configure the check in the stack overlay</td><td>Project team</td></tr>
+</tbody></table></div>
+</section>
+
+<section id="exceptions">
+<div class="kicker">18 — Exceptions</div>
+<h2>No silent bypasses</h2>
+<div class="grid g2">
+<div class="card"><h3>When</h3><p>Only when a MUST requirement genuinely cannot be met, the reason is specific, and compensating controls reduce the risk. Never a permanent alternative to doing the work, and never for a committed secret.</p></div>
+<div class="card amber"><h3>Who decides</h3><p>The owner for the area decides: repository maintainer, architecture, security, data, AI, platform or release owner. High and Critical need the accountable risk owner. An agent cannot approve an exception.</p></div>
+<div class="card green"><h3>What to record</h3><p>Use <code>docs/adr/exception-template.md</code>: exception ID, principle ID, reason, scope, risk, mitigation, owner, approver, created date, expiry or review date, evidence.</p></div>
+<div class="card red"><h3>Expiry and review</h3><p>Link the record and its expiry in the PR. Owners review open exceptions at least monthly. An expired exception is non-compliance until renewed by an authorized human.</p></div>
+</div>
+<p class="sub" style="margin-top:12px">Process: <a href="../governance/exceptions.md">docs/governance/exceptions.md</a>. Emergencies: <a href="../break-glass-procedure.md">break-glass procedure</a>.</p>
+</section>
+
+<section id="checklist">
+<div class="kicker">19 — Developer checklist</div>
+<h2>One page, start to finish</h2>
+<div class="progress"><div id="bar"></div></div>
+<p class="sub" id="count" style="margin-bottom:12px">0 of 20 complete</p>
+<div class="check" id="checks">
+<label><input type="checkbox"> Understand the requirement</label>
+<label><input type="checkbox"> Check architecture</label>
+<label><input type="checkbox"> Check policies</label>
+<label><input type="checkbox"> Check ownership</label>
+<label><input type="checkbox"> Create branch</label>
+<label><input type="checkbox"> Implement</label>
+<label><input type="checkbox"> Add or update tests</label>
+<label><input type="checkbox"> Check security and secrets</label>
+<label><input type="checkbox"> Validate locally</label>
+<label><input type="checkbox"> Commit</label>
+<label><input type="checkbox"> Push</label>
+<label><input type="checkbox"> Create PR</label>
+<label><input type="checkbox"> Complete PR description</label>
+<label><input type="checkbox"> Resolve CI findings</label>
+<label><input type="checkbox"> Resolve agent findings</label>
+<label><input type="checkbox"> Obtain required review</label>
+<label><input type="checkbox"> Merge</label>
+<label><input type="checkbox"> Verify deployment</label>
+<label><input type="checkbox"> Monitor and validate</label>
+<label><input type="checkbox"> Roll back if required</label>
+</div>
+</section>
+
+<section id="compare">
+<div class="kicker">20 — Greenfield vs Brownfield</div>
+<h2>Two separate adoption paths</h2>
+<div class="tablewrap"><table>
+<thead><tr><th></th><th>Greenfield</th><th>Brownfield</th></tr></thead>
+<tbody>
+<tr><td>Starting point</td><td>New project</td><td>Existing project</td></tr>
+<tr><td>Skeleton</td><td>Starting template</td><td>Reference standard</td></tr>
+<tr><td>Architecture</td><td>Establish the baseline</td><td>Assess what exists</td></tr>
+<tr><td>Policies</td><td>Adopt from the start</td><td>Assess, then adopt progressively</td></tr>
+<tr><td>CI/CD</td><td>Build into the project</td><td>Assess and improve</td></tr>
+<tr><td>Agents / skills</td><td>Embedded in review</td><td>Used to support assessment</td></tr>
+<tr><td>Outcome</td><td>Golden Path project</td><td>Remediated, adopting project</td></tr>
+</tbody></table></div>
+</section>
+
+<section id="faq">
+<div class="kicker">21 — Developer FAQ</div>
+<h2>Practical questions</h2>
+<details><summary>What if I only change code?</summary><p>Add or update unit tests, run <code>bash scripts/check.sh</code>, and open a normal PR. If the Baseline Guard reports no impact, the standard review applies. Code and tests are routed to the Code Quality and Architecture agents.</p></details>
+<details><summary>What if I change infrastructure?</summary><p>Treat it as higher risk: disclose configuration and infrastructure impact in the PR, include rollback, and expect platform owner approval. The Baseline Guard may report <code>BASELINE_IMPACT</code> or <code>ARCHITECTURE_CHANGE</code>, which routes to the Security &amp; DevOps and Architecture agents.</p></details>
+<details><summary>What if I change a prompt?</summary><p>Complete the AI-specific impact section and provide evaluation evidence; model and prompt changes need the AI owner. A prompt-only change is not an architecture change unless it is a protected contract.</p></details>
+<details><summary>What if CI fails?</summary><p>Read the failure message, which names the policy ID, fix the cause and push again. Do not disable or weaken the check. If it also fails on a clean <code>main</code>, tell the repository maintainer.</p></details>
+<details><summary>What if an agent finds an issue?</summary><p>Treat it as evidence from a reviewer. Fix it, or record a disposition with a reason. A confirmed violation of a MUST needs a fix or an approved exception.</p></details>
+<details><summary>When do I need an ADR?</summary><p>For a new service, external dependency, data store, public API, model or provider, RAG source, guardrail change, infrastructure pattern, security exception or breaking change, and whenever the Baseline Guard reports <code>ARCHITECTURE_CHANGE</code>. Not for normal feature work.</p></details>
+<details><summary>Can I bypass a check?</summary><p>No. Use the exception process, or the break-glass procedure for an incident. Both are recorded and approved by humans.</p></details>
+<details><summary>Who approves production?</summary><p>An explicit production approver, enforced through the PROD environment's required reviewers. Agents cannot approve production.</p></details>
+<details><summary>What happens when I need an architecture change?</summary><p>Write an ADR with <code>Baseline impact: change</code> and the affected boundaries, ask the architecture owner to approve it, and expect specialist reviews. Editing <code>docs/architecture/baseline.yaml</code> also needs <code>Baseline update: yes</code>. The ADR requirement is enforced by CI once the baseline status is <code>approved</code>.</p></details>
+<details><summary>How do I onboard an existing project?</summary><p>Follow the Brownfield path: assess against the policies, record findings and risk, build a remediation roadmap, and adopt progressively. Do not rebuild the project from the skeleton.</p></details>
+</section>
+</main>
+
+<footer><strong>Agentic Development and DevOps Framework</strong> · Documentation for Phases 1–6 · Policies explain what must be true; this guide explains what the developer does. Authoritative sources: <a href="../developer-workflow.md">developer workflow</a>, <a href="../../CONTRIBUTING.md">contributing</a>, <a href="../../.github/BRANCHING.md">branching</a>, <a href="../deployment.md">deployment</a>.</footer>
+
+<script>
+(function(){
+  var body=document.body;
+  function setPath(p){
+    body.dataset.path=p;
+    document.querySelectorAll('[data-pick]').forEach(function(el){
+      el.classList.toggle('on',el.dataset.pick===p);
+    });
+  }
+  document.querySelectorAll('[data-pick]').forEach(function(el){
+    el.addEventListener('click',function(){setPath(el.dataset.pick)});
+    el.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();setPath(el.dataset.pick)}});
+  });
+
+  var side=document.getElementById('side');
+  document.getElementById('menu').addEventListener('click',function(){side.classList.toggle('open')});
+  var links=[].slice.call(document.querySelectorAll('.side a.nav'));
+  links.forEach(function(a){a.addEventListener('click',function(){side.classList.remove('open')})});
+
+  var sections=[].slice.call(document.querySelectorAll('main section[id]'));
+  var obs=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){
+        links.forEach(function(l){l.classList.toggle('active',l.getAttribute('href')==='#'+e.target.id)});
+      }
+    });
+  },{rootMargin:'-20% 0px -70% 0px'});
+  sections.forEach(function(s){obs.observe(s)});
+
+  var boxes=[].slice.call(document.querySelectorAll('#checks input'));
+  function update(){
+    var n=boxes.filter(function(b){return b.checked}).length;
+    boxes.forEach(function(b){b.parentNode.classList.toggle('done',b.checked)});
+    document.getElementById('bar').style.width=(n/boxes.length*100)+'%';
+    document.getElementById('count').textContent=n+' of '+boxes.length+' complete';
+  }
+  boxes.forEach(function(b){b.addEventListener('change',update)});
+})();
+</script>
+</body>
+</html>

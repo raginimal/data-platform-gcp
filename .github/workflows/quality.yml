@@ -1,0 +1,30 @@
+name: Quality
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    name: Gate 2 - Quality
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Run Plumbline gate
+        shell: bash
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            bash scripts/plumbline-check.sh --diff "${{ github.event.pull_request.base.sha }}" --format markdown
+          else
+            bash scripts/plumbline-check.sh --all --format markdown
+          fi
+      - name: Run lint hooks
+        run: bash scripts/lint.sh
+      - name: Run tests
+        run: bash scripts/test.sh

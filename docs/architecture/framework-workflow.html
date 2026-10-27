@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Framework Overview and Workflow</title>
+<style>
+:root{--text:#000;--muted:#53565a;--line:#d0d0ce;--green:#26890d;--lime:#86bc25;--blue:#0076a8;--amber:#ed8b00;--red:#da291c;--panel:#f4f4f2;font-family:"Segoe UI",Arial,sans-serif}
+*{box-sizing:border-box}
+body{margin:0;color:var(--text);line-height:1.5;background:#fff}
+header{padding:40px 6vw 24px;border-top:9px solid var(--lime)}
+h1{margin:6px 0 10px;font-size:clamp(2rem,4vw,3rem);letter-spacing:-.03em}
+h2{margin:0 0 6px;font-size:1.5rem}
+.kicker{color:var(--green);font-weight:800;letter-spacing:.14em;text-transform:uppercase;font-size:.75rem}
+.lead{max-width:820px;color:var(--muted);font-size:1.1rem}
+main{padding:0 6vw 48px}
+section{margin:28px 0}
+.sub{color:var(--muted);margin:0 0 16px}
+.diagram{border:1px solid var(--line);border-radius:12px;background:var(--panel);padding:16px;overflow-x:auto}
+.diagram svg{display:block;min-width:980px;width:100%;height:auto}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.card{border:1px solid var(--line);border-top:5px solid var(--green);border-radius:10px;padding:16px;background:#fff}
+.card:nth-child(2n){border-top-color:var(--blue)}
+.card:nth-child(3n){border-top-color:var(--amber)}
+.card h3{margin:0 0 6px;font-size:1rem}
+.card p{margin:0;color:var(--muted);font-size:.9rem}
+table{width:100%;border-collapse:collapse;font-size:.9rem}
+th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+th{background:var(--panel)}
+code{background:#eef3e6;color:var(--green);padding:1px 5px;border-radius:4px}
+.legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:10px;font-size:.82rem;color:var(--muted)}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+svg text{font-family:"Segoe UI",Arial,sans-serif}
+</style>
+</head>
+<body>
+<header>
+  <div class="kicker">AI Engineering Golden Path</div>
+  <h1>Framework Overview and Workflow</h1>
+  <p class="lead">A reusable, technology-neutral framework: policies define the rules, deterministic CI enforces them, AI agents advise, and humans decide.</p>
+</header>
+<main>
+  <section>
+    <h2>Delivery workflow</h2>
+    <p class="sub">Every change follows this lifecycle, from work item to production learning. See <code>docs/developer-workflow.md</code>.</p>
+    <div class="diagram">
+      <svg viewBox="0 0 1160 560" role="img" aria-labelledby="wf-t wf-d">
+        <title id="wf-t">Delivery workflow</title>
+        <desc id="wf-d">Work item, branch, policy and risk review, implementation, tests, local validation, pull request, automated checks, review, human approval, merge, deployment, validation and learning.</desc>
+        <defs>
+          <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" fill="#53565a"/></marker>
+          <style>
+            .n{stroke-width:2;rx:10}
+            .dev{fill:#eaf5d8;stroke:#86bc25}
+            .auto{fill:#dff0f8;stroke:#0076a8}
+            .hum{fill:#fdecd0;stroke:#ed8b00}
+            .ops{fill:#e6e6e4;stroke:#53565a}
+            .t{font-size:15px;font-weight:600;fill:#000;text-anchor:middle}
+            .s{font-size:12px;fill:#53565a;text-anchor:middle}
+            .l{stroke:#53565a;stroke-width:2;fill:none;marker-end:url(#arr)}
+            .lane{font-size:12px;font-weight:800;letter-spacing:.12em;fill:#53565a}
+          </style>
+        </defs>
+
+        <text class="lane" x="10" y="22">1 · PLAN AND BUILD</text>
+        <rect class="n dev" x="10" y="35" width="150" height="70"/><text class="t" x="85" y="65">Work item</text><text class="s" x="85" y="85">issue / ticket</text>
+        <rect class="n dev" x="215" y="35" width="150" height="70"/><text class="t" x="290" y="65">Branch</text><text class="s" x="290" y="85">feature / bugfix / hotfix</text>
+        <rect class="n dev" x="420" y="35" width="150" height="70"/><text class="t" x="495" y="65">Policy + risk</text><text class="s" x="495" y="85">classify, find policy IDs</text>
+        <rect class="n dev" x="625" y="35" width="150" height="70"/><text class="t" x="700" y="65">Implement</text><text class="s" x="700" y="85">code, docs, ADR</text>
+        <rect class="n dev" x="830" y="35" width="150" height="70"/><text class="t" x="905" y="65">Tests</text><text class="s" x="905" y="85">unit / integration / e2e</text>
+        <path class="l" d="M160 70H213"/><path class="l" d="M365 70H418"/><path class="l" d="M570 70H623"/><path class="l" d="M775 70H828"/>
+        <path class="l" d="M905 105V150Q905 165 890 165H100Q85 165 85 213"/>
+
+        <text class="lane" x="10" y="200">2 · VERIFY AND REVIEW</text>
+        <rect class="n dev" x="10" y="215" width="150" height="70"/><text class="t" x="85" y="245">Local checks</text><text class="s" x="85" y="265">scripts/check.sh</text>
+        <rect class="n dev" x="215" y="215" width="150" height="70"/><text class="t" x="290" y="245">Commit + PR</text><text class="s" x="290" y="265">PR template complete</text>
+        <rect class="n auto" x="420" y="215" width="150" height="70"/><text class="t" x="495" y="245">Automated checks</text><text class="s" x="495" y="265">security, quality, baseline</text>
+        <rect class="n auto" x="625" y="215" width="150" height="70"/><text class="t" x="700" y="245">AI agent review</text><text class="s" x="700" y="265">advisory, read-only</text>
+        <rect class="n hum" x="830" y="215" width="150" height="70"/><text class="t" x="905" y="245">Human review</text><text class="s" x="905" y="265">CODEOWNER + specialist</text>
+        <path class="l" d="M160 250H213"/><path class="l" d="M365 250H418"/><path class="l" d="M570 250H623"/><path class="l" d="M775 250H828"/>
+        <path class="l" d="M905 285V330Q905 345 890 345H100Q85 345 85 393"/>
+
+        <text class="lane" x="10" y="380">3 · RELEASE AND LEARN</text>
+        <rect class="n hum" x="10" y="395" width="150" height="70"/><text class="t" x="85" y="425">Approval</text><text class="s" x="85" y="445">human sign-off</text>
+        <rect class="n ops" x="215" y="395" width="150" height="70"/><text class="t" x="290" y="425">Protected main</text><text class="s" x="290" y="445">merge via PR only</text>
+        <rect class="n auto" x="420" y="395" width="150" height="70"/><text class="t" x="495" y="425">Build once</text><text class="s" x="495" y="445">immutable artifact</text>
+        <rect class="n hum" x="625" y="395" width="150" height="70"/><text class="t" x="700" y="425">Promote</text><text class="s" x="700" y="445">prod needs approval</text>
+        <rect class="n auto" x="830" y="395" width="150" height="70"/><text class="t" x="905" y="425">Validate + monitor</text><text class="s" x="905" y="445">rollback path ready</text>
+        <path class="l" d="M160 430H213"/><path class="l" d="M365 430H418"/><path class="l" d="M570 430H623"/><path class="l" d="M775 430H828"/>
+        <path class="l" d="M905 465V505Q905 520 890 520H590" />
+        <rect class="n ops" x="430" y="490" width="160" height="60"/><text class="t" x="510" y="518">Learning loop</text><text class="s" x="510" y="537">recurring issues → policy</text>
+        <path class="l" d="M430 520H60Q45 520 45 505V470" stroke-dasharray="6 4"/>
+      </svg>
+      <div class="legend">
+        <span><i style="background:#eaf5d8;border:1px solid #86bc25"></i>Developer</span>
+        <span><i style="background:#dff0f8;border:1px solid #0076a8"></i>Automation</span>
+        <span><i style="background:#fdecd0;border:1px solid #ed8b00"></i>Human decision</span>
+        <span><i style="background:#e6e6e4;border:1px solid #53565a"></i>Platform / operations</span>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Framework layers</h2>
+    <p class="sub">Each layer has a single responsibility and a clear owner.</p>
+    <div class="grid">
+      <div class="card"><h3>Policies</h3><p>Source-of-truth rules with stable principle IDs under <code>policies/</code>.</p></div>
+      <div class="card"><h3>Deterministic CI</h3><p>Scripts and pipelines enforce checks, baseline guard, and artifact promotion.</p></div>
+      <div class="card"><h3>AI agents and skills</h3><p>Architecture, security/DevOps, code quality, and AI engineering reviewers. Advisory only.</p></div>
+      <div class="card"><h3>Human governance</h3><p>CODEOWNER approval, risk classification, exceptions, and production sign-off.</p></div>
+      <div class="card"><h3>Infrastructure and config</h3><p>Overlay-based, cloud-neutral core with per-environment configuration.</p></div>
+      <div class="card"><h3>Observability and learning</h3><p>Monitoring and incident feedback flow back into policy.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Who decides what</h2>
+    <table>
+      <thead><tr><th>Role</th><th>Responsibility</th></tr></thead>
+      <tbody>
+        <tr><td>AI agent</td><td>Recommends, summarizes evidence, flags risk. Cannot approve, merge, or grant exceptions.</td></tr>
+        <tr><td>CI</td><td>Deterministic enforcement of security, quality, policy, and baseline rules.</td></tr>
+        <tr><td>Human</td><td>Architectural decisions, risk acceptance, exceptions, and production release approval.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <p class="sub">Related: <a href="index.html">Golden Path overview</a> · <a href="devops-developer-guide.html">DevOps developer guide</a> · <a href="ai-engineering-blueprint.html">AI engineering blueprint</a></p>
+  </section>
+</main>
+</body>
+</html>

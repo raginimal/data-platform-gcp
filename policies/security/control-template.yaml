@@ -1,0 +1,10 @@
+id: security-control-id
+name: concise-control-name
+status: proposed
+owner: security-owner
+severity: high
+control: State the security requirement.
+evidence: Describe the evidence a change must provide.
+blocking: false
+scanner: tool-or-check-name
+exception_process: Link an approved risk acceptance with expiry.

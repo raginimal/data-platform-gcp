@@ -1,0 +1,10 @@
+id: architecture-rule-id
+name: concise-rule-name
+status: proposed
+owner: team-or-role
+scope: core-or-project
+principle: Describe the architectural principle.
+requirement: State the required behavior.
+automated_check: Describe a deterministic check or say not-configured.
+human_decision: Identify the required reviewer or approval.
+exception_process: Link an ADR and expiry date for exceptions.
