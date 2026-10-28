@@ -1,0 +1,23 @@
+name: raw-sample-sales-and-customers
+version: 1.0.0
+owner: data-platform
+classification: internal
+purpose: Demonstrate validated ingestion of synthetic sales and customer records into BigQuery.
+retention: Short-lived development/demo validation only; the raw dataset must have a data-owner-configured default table expiration before loading.
+producer: sample_data CSV fixtures
+consumers:
+  - BigQuery demo analytics
+schema_location: src/data_platform/ingest_samples.py
+compatibility: backward-compatible; schema changes require contract and test updates
+pii: false
+access_approval: Human approval and a least-privilege development identity are required; authenticate with Application Default Credentials.
+quality:
+  required_fields: All columns are required and non-empty.
+  uniqueness: customer_id and sale_id are unique within each input file.
+  dates: ISO 8601 calendar dates (YYYY-MM-DD).
+  sales_amount: Non-negative BigQuery NUMERIC values with at most 9 decimal places.
+  currency: Three uppercase letters.
+  country_code: Two uppercase letters.
+  referential_integrity: Each sales.customer_id must exist in customers.customer_id.
+failure_behavior: Reject both files before contacting GCP if validation fails; BigQuery load errors are propagated.
+load_behavior: Load customers then sales into raw.customers and raw.sales using WRITE_EMPTY; populated tables are not overwritten or appended.

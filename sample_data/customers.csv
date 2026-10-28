@@ -1,0 +1,5 @@
+customer_id,customer_segment,signup_date,country_code
+C001,consumer,2025-01-15,AU
+C002,business,2025-02-20,NZ
+C003,consumer,2025-04-04,US
+C004,business,2025-05-12,GB

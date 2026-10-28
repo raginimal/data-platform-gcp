@@ -1,0 +1,4 @@
+# Google-maintained BigQuery client library; Apache-2.0 license.
+# Owner: data-platform. Source: PyPI (google-cloud-bigquery).
+# Update strategy: keep within supported 3.x releases and review dependency/security scans.
+google-cloud-bigquery>=3.25.0,<4.0.0

@@ -1,15 +1,15 @@
 # Project configuration. Run scripts/setup.sh to populate this file.
-project_name: "CHANGE_ME"
-team: "CHANGE_ME"
-owner: "CHANGE_ME"
-language: "CHANGE_ME"
-cloud: "vendor-neutral"
-project_type: "ai-or-data-project"
+project_name: "data-platform-gcp"
+team: "data-platform"
+owner: "data-platform"
+language: "python"
+cloud: "gcp"
+project_type: "data-project"
 environments:
   - dev
   - test
   - prod
-repository_organization: "CHANGE_ME"
+repository_organization: "deloitte"
 ai_capabilities:
   models: false
   prompts: false
