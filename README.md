@@ -600,3 +600,29 @@ Exceptions use the standard exception template, require an owner, risk, mitigati
 Phases 1–6 are the current target scope. “Implemented” means the corresponding repository foundation exists; it does not mean every project-specific tool, owner, cloud environment, or runtime adapter is configured.
 
 The Architecture Baseline is integrated into these phases rather than added as a new one: the baseline and its `ARCH-BL-*` policies belong to Phase 2, the ADR and approval workflow to Phase 3, the Baseline Guard to Phase 4, and the baseline impact review (`ARCH-SK-001`) and routing to Phase 6.
+
+## Sample CSV ingestion
+
+The sample ingestion CLI loads one sales CSV and one customer CSV from Cloud Storage into the existing raw BigQuery dataset:
+
+```powershell
+python -m pip install -r requirements.txt
+python src\ingest_samples.py `
+  --sales-uri gs://YOUR_BUCKET/path/sales.csv `
+  --customers-uri gs://YOUR_BUCKET/path/customers.csv `
+  --dataset raw `
+  --project YOUR_PROJECT_ID `
+  --location YOUR_BIGQUERY_LOCATION
+```
+
+The Cloud Storage objects must be readable by the active Google Cloud credentials, and the raw dataset must exist. The runtime identity needs permission to read the source objects, create BigQuery jobs, and create or append to tables in that dataset. Configure Application Default Credentials using the approved environment setup; credentials are not stored in this repository.
+
+The CLI validates that each URI refers to one CSV object and that its header is readable, non-empty, and has unique column names. BigQuery autodetects the sample schema, rejects malformed rows, skips the header row, and appends to `raw.sales` and `raw.customers`. It checks the source object generation and uses a deterministic job ID so retrying the same object generation does not append it again. A new generation is treated as a new batch and appended; ensure source objects are immutable after delivery. A failure for one table is reported without preventing the other table from being attempted.
+
+No sample objects or column contracts are included in this repository. Before production use, define versioned sales and customer contracts, schema compatibility and quality rules, and the required per-row provenance and operational metadata described in [ARCHITECTURE.md](ARCHITECTURE.md) and [policies/data/data-contracts.md](policies/data/data-contracts.md). BigQuery autodetection is only suitable for these sample inputs.
+
+Run the focused tests with:
+
+```powershell
+python -m unittest tests.unit.test_sample_ingestion -v
+```

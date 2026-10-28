@@ -1,0 +1,5 @@
+# Google Cloud SDK dependencies for GCS object validation and BigQuery CSV loads.
+# Source: PyPI; license: Apache-2.0; owner: project platform owner.
+# Update pinned versions through reviewed dependency and security checks.
+google-cloud-bigquery==3.45.2
+google-cloud-storage==3.13.1
