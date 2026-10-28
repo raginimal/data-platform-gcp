@@ -1,0 +1,37 @@
+environment: dev
+project_id: ${GCP_PROJECT_ID}
+location: ${BIGQUERY_LOCATION}
+raw_dataset: raw
+max_attempts: 3
+sources:
+  - source_uri: gs://${GCS_LANDING_BUCKET}/samples/customers.csv
+    table: customers
+    format: CSV
+    skip_leading_rows: 1
+    schema:
+      - name: customer_id
+        type: INT64
+        mode: REQUIRED
+      - name: name
+        type: STRING
+        mode: REQUIRED
+      - name: signup_date
+        type: DATE
+        mode: REQUIRED
+  - source_uri: gs://${GCS_LANDING_BUCKET}/samples/sales.csv
+    table: sales
+    format: CSV
+    skip_leading_rows: 1
+    schema:
+      - name: sale_id
+        type: INT64
+        mode: REQUIRED
+      - name: customer_id
+        type: INT64
+        mode: REQUIRED
+      - name: sale_date
+        type: DATE
+        mode: REQUIRED
+      - name: amount
+        type: NUMERIC
+        mode: REQUIRED
