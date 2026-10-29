@@ -6,7 +6,7 @@ SELECT
   customer.customer_name,
   customer.signup_date,
   COUNT(sale.sale_id) AS sale_count,
-  COALESCE(SUM(sale.amount), NUMERIC '0') AS total_sales_amount,
+  COALESCE(SUM(sale.revenue), NUMERIC '0') AS total_sales_amount,
   MAX(sale.sale_date) AS last_sale_date
 FROM `${GCP_PROJECT_ID}.staging.customers` AS customer
 LEFT JOIN `${GCP_PROJECT_ID}.staging.sales` AS sale

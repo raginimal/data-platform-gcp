@@ -5,7 +5,4 @@ SELECT
   customer_id,
   NULLIF(TRIM(name), '') AS customer_name,
   signup_date
-FROM `${GCP_PROJECT_ID}.raw.customers`
-WHERE customer_id IS NOT NULL
-  AND NULLIF(TRIM(name), '') IS NOT NULL
-  AND signup_date IS NOT NULL;
+FROM `${GCP_PROJECT_ID}.raw.customers`;

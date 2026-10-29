@@ -5,10 +5,7 @@ SELECT
   sale_id,
   customer_id,
   sale_date,
-  amount
-FROM `${GCP_PROJECT_ID}.raw.sales`
-WHERE sale_id IS NOT NULL
-  AND customer_id IS NOT NULL
-  AND sale_date IS NOT NULL
-  AND amount IS NOT NULL
-  AND amount >= 0;
+  quantity,
+  unit_price,
+  revenue
+FROM `${GCP_PROJECT_ID}.raw.sales`;
