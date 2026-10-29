@@ -1,0 +1,8 @@
+# Purpose: Cloud Storage access, BigQuery load jobs, and YAML ingestion configuration.
+# Owner: data platform maintainers. Sources: PyPI.
+# Licenses: google-cloud-bigquery and google-cloud-storage (Apache-2.0); PyYAML (MIT).
+# Version policy: constrained compatible major versions; review updates quarterly and
+# apply security fixes through the dependency scanning workflow.
+google-cloud-bigquery>=3.25,<4
+google-cloud-storage>=2.18,<4
+PyYAML>=6.0,<7
