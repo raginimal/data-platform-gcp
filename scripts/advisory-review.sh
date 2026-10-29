@@ -5,6 +5,7 @@ set -uo pipefail
 ROUTING="config/ai/agent-routing.yaml"
 BASE_REF="${1:-${GITHUB_BASE_REF:-main}}"
 OUT="${GITHUB_STEP_SUMMARY:-/dev/stdout}"
+REPORT_FILE="${ADVISORY_REPORT_FILE:-$(mktemp)}"
 
 if git rev-parse --verify -q "origin/${BASE_REF}" >/dev/null; then
   changed=$(git diff --name-only "origin/${BASE_REF}...HEAD")
@@ -75,6 +76,9 @@ done <<<"$changed"
     echo "- Run the listed agents in the editor and record findings using \`docs/agent-output.md\`."
     echo "- Attach findings (or a note that none apply) to the PR; human reviewers decide disposition."
   fi
-} >>"$OUT"
+} >"$REPORT_FILE"
+
+# Publish the report to the job summary (or stdout locally).
+cat "$REPORT_FILE" >>"$OUT"
 
 exit 0

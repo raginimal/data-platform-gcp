@@ -23,12 +23,13 @@ flowchart LR
    [`01_staging_customers.sql`](../../sql/transformations/01_staging_customers.sql)
    and
    [`02_staging_sales.sql`](../../sql/transformations/02_staging_sales.sql).
-   These statements trim customer names and exclude records that cannot meet
-   the required staging contract.
+   These statements preserve source rows for quality checks and trim customer
+   names; invalid rows are not silently filtered before the quality gate.
 3. Run
    [`customers_and_sales.sql`](../../sql/data_quality/customers_and_sales.sql).
-   Every assertion must succeed. A failed assertion must stop the workflow and
-   leave the last known-good curated table unchanged.
+   The script emits a per-check PASS/FAIL report with severity and failure
+   counts. Every critical assertion must succeed. A failed assertion must stop
+   the workflow and leave the last known-good curated table unchanged.
 4. Run
    [`03_curated_customer_sales.sql`](../../sql/transformations/03_curated_customer_sales.sql)
    to replace `curated.customer_sales` with one row per staged customer,
@@ -43,11 +44,13 @@ curated dataset by default.
 
 ## Quality and failure behavior
 
-The quality gate checks required fields, non-negative amounts, customer
-referential integrity, and unique sale IDs. Staging filters malformed records,
-so the ingestion/load job must retain rejected-record counts and source object
-lineage for operational investigation. Curated publication is deliberately
-after the gate, so a failed run does not publish partial output.
+The quality gate checks required fields, unique customer and sale IDs, positive
+quantities, non-negative unit prices and revenue, revenue equal to quantity
+times unit price, and customer referential integrity. Each check is reported
+as critical; any failure fails the BigQuery script and therefore the
+orchestration step. The pipeline must stop before curated publication and keep
+the last known-good curated table unchanged. Ingestion/load failures and source
+object lineage remain available for operational investigation.
 
 This flow applies `DATA-001`, `DATA-003`, `DATA-CON-001` through
 `DATA-CON-004`, and `DATA-CLS-001` by keeping purpose, lineage, contract

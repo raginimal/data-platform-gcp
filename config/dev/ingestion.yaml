@@ -32,6 +32,12 @@ sources:
       - name: sale_date
         type: DATE
         mode: REQUIRED
-      - name: amount
+      - name: quantity
+        type: INT64
+        mode: REQUIRED
+      - name: unit_price
+        type: NUMERIC
+        mode: REQUIRED
+      - name: revenue
         type: NUMERIC
         mode: REQUIRED
